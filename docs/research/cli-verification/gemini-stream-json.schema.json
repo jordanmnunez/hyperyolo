@@ -1,0 +1,125 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://hyperyolo.local/schemas/gemini-stream-json.schema.json",
+  "title": "Gemini CLI stream-json event",
+  "description": "Schema for newline-delimited stream JSON events emitted by `gemini --output-format stream-json`.",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/definitions/init" },
+    { "$ref": "#/definitions/message" },
+    { "$ref": "#/definitions/tool_use" },
+    { "$ref": "#/definitions/tool_result" },
+    { "$ref": "#/definitions/error" },
+    { "$ref": "#/definitions/result" }
+  ],
+  "definitions": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp."
+    },
+    "stats": {
+      "type": "object",
+      "description": "Aggregated session metrics (flattened from telemetry).",
+      "properties": {
+        "total_tokens": { "type": "number" },
+        "input_tokens": { "type": "number" },
+        "output_tokens": { "type": "number" },
+        "duration_ms": { "type": "number" },
+        "tool_calls": { "type": "number" }
+      },
+      "required": [
+        "total_tokens",
+        "input_tokens",
+        "output_tokens",
+        "duration_ms",
+        "tool_calls"
+      ],
+      "additionalProperties": false
+    },
+    "errorObject": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "message": { "type": "string" }
+      },
+      "required": ["type", "message"],
+      "additionalProperties": true
+    },
+    "init": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "init" },
+        "timestamp": { "$ref": "#/definitions/timestamp" },
+        "session_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "description": "Session UUID generated at CLI startup."
+        },
+        "model": { "type": "string" }
+      },
+      "required": ["type", "timestamp", "session_id", "model"],
+      "additionalProperties": false
+    },
+    "message": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "message" },
+        "timestamp": { "$ref": "#/definitions/timestamp" },
+        "role": { "type": "string", "enum": ["user", "assistant"] },
+        "content": { "type": "string" },
+        "delta": { "type": "boolean", "description": "True when chunked assistant output." }
+      },
+      "required": ["type", "timestamp", "role", "content"],
+      "additionalProperties": false
+    },
+    "tool_use": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "tool_use" },
+        "timestamp": { "$ref": "#/definitions/timestamp" },
+        "tool_name": { "type": "string" },
+        "tool_id": { "type": "string" },
+        "parameters": { "type": "object", "description": "Tool-specific parameters.", "additionalProperties": true }
+      },
+      "required": ["type", "timestamp", "tool_name", "tool_id", "parameters"],
+      "additionalProperties": false
+    },
+    "tool_result": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "tool_result" },
+        "timestamp": { "$ref": "#/definitions/timestamp" },
+        "tool_id": { "type": "string" },
+        "status": { "type": "string", "enum": ["success", "error"] },
+        "output": { "type": "string" },
+        "error": { "$ref": "#/definitions/errorObject" }
+      },
+      "required": ["type", "timestamp", "tool_id", "status"],
+      "additionalProperties": false
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "error" },
+        "timestamp": { "$ref": "#/definitions/timestamp" },
+        "severity": { "type": "string", "enum": ["warning", "error"] },
+        "message": { "type": "string" }
+      },
+      "required": ["type", "timestamp", "severity", "message"],
+      "additionalProperties": false
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "result" },
+        "timestamp": { "$ref": "#/definitions/timestamp" },
+        "status": { "type": "string", "enum": ["success", "error"] },
+        "stats": { "$ref": "#/definitions/stats" },
+        "error": { "$ref": "#/definitions/errorObject" }
+      },
+      "required": ["type", "timestamp", "status"],
+      "additionalProperties": false
+    }
+  }
+}
