@@ -246,6 +246,15 @@ HyperYOLO generates its own ID (`hyper_<8hex>`) and maps to the native ID.
 
 ---
 
+## Tech Stack Decision
+
+Research in `docs/research/analysis.md` recommended **Go** for single-binary distribution and minimal runtime friction, but we are committing to **TypeScript/Node** for the MVP.
+
+- **Rationale (why TypeScript now):** Fastest path for the team (existing execa streaming patterns from Beads Runner), direct access to the maximalist npm UI stack (chalk/gradient-string/figlet/boxen/ora), and oclif’s plugin model fits the multi-backend CLI layout without extra scaffolding.
+- **Trade-offs we accept:** Requires Node.js 18+, larger packaged size (~50MB with a bundled runtime vs ~10MB Go), slightly slower cold start/higher memory, and distribution via npm/tarballs instead of a single static binary.
+- **Benefits realized:** Rapid iteration speed, easy contributor onboarding, and reuse of prior TypeScript utilities outweigh distribution simplicity for our developer audience (who already have Node installed).
+- **Future considerations:** Revisit a Go rewrite if installation friction becomes a top complaint, if offline/air-gapped single-binary delivery becomes P0, or if startup/perf constraints tighten. Mitigate meanwhile with optional bundling (`pkg`, `bunx --compile`) to reduce runtime dependency while keeping the TypeScript codebase.
+
 ## Tech Stack
 
 ### Language: TypeScript
