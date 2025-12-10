@@ -225,6 +225,11 @@ interface ExecutionStats {
 }
 ```
 
+Adapter requirements for ANSI/parsing:
+- HyperYOLO strips ANSI codes and normalizes carriage returns before calling `parseSessionId`/`parseStats`; adapters must not depend on color codes or cursor positioning for parsing.
+- `buildArgs` should request parse-friendly output modes (Claude/Gemini `stream-json`, Codex `--json`) to minimize ANSI noise; fall back to colored text only when parsing is explicitly disabled.
+- Parser hooks may be stateful/incremental, but should not perform additional ANSI stripping; the executor preserves a raw stream for UI while providing sanitized slices to adapters.
+
 ### CLI Argument Translation
 
 | HyperYOLO | Codex | Claude | Gemini |
