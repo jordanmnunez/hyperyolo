@@ -97,6 +97,7 @@ export async function executeWithTimeout(
   const child = execa(command, args, {
     cwd: options.cwd,
     env: { ...process.env, ...options.env },
+    stdin: 'ignore',
     stdout: 'pipe',
     stderr: 'pipe',
     forceKillAfterDelay: false
