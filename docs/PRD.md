@@ -293,9 +293,11 @@ Trade-offs accepted:
 | `ora` | Animated spinners |
 | `execa` | Subprocess management with streaming |
 
-### Session Storage: JSON File
+### Session Storage: JSON with Locking
 
-Simple JSON at `~/.config/hyperyolo/sessions.json`:
+- **Decision**: Keep a JSON store at `~/.config/hyperyolo/sessions.json`, guarded by a lockfile and atomic temp-write-then-rename on every mutation.
+- **Rationale**: Small dataset (lookup by ID + list/cleanup), single-user CLI with occasional concurrent runs, zero native dependencies, and human-readable support data. Concurrency risk is mitigated with advisory locks; richer query needs can trigger a later SQLite migration.
+- **Format**:
 
 ```json
 {
@@ -303,12 +305,14 @@ Simple JSON at `~/.config/hyperyolo/sessions.json`:
     "backend": "claude",
     "nativeId": "claude-session-xyz",
     "createdAt": "2024-12-09T10:00:00Z",
-    "lastPrompt": "fix the bug"
+    "lastSeenAt": "2024-12-09T10:05:00Z",
+    "lastPrompt": "fix the bug",
+    "invalid": false
   }
 }
 ```
 
-SQLite considered but unnecessary for MVP. JSON is human-readable and sufficient for single-user session tracking.
+- **Concurrency rules**: Acquire an exclusive lock (e.g., via `proper-lockfile`) before read-modify-write, retry with jitter, treat stale locks as recoverable, and fall back to read-only with a warning if the lock cannot be taken. Write via `sessions.json.tmp` + atomic rename on the same filesystem. More detail in `docs/architecture/session-storage.md`.
 
 ### Session Lifecycle and Cleanup
 

@@ -2,6 +2,10 @@
 
 Design notes for how HyperYOLO tracks, validates, and eventually removes session metadata that maps `hyper_*` IDs to native CLI session IDs.
 
+## Storage backend
+- Persistent store is a JSON file at `~/.config/hyperyolo/sessions.json`, guarded by a lockfile and atomic temp-write-then-rename on mutation (see `docs/architecture/session-storage.md`).
+- All read-modify-write operations take the lock; read-only flows either take the same lock briefly or retry once on parse errors to avoid torn reads during concurrent writes.
+
 ## Lifecycle
 - **Create**: On every run, generate `hyper_<8hex>`, persist `{ backend, nativeId, createdAt, lastSeenAt, lastPrompt }` once the native session ID is parsed. Writes use the session store’s lock/atomic write rules.
 - **Resume**: Look up the mapping by HyperYOLO ID, surface a warning if the record is stale (see retention), and pass the native ID to the adapter. Update `lastSeenAt` and `lastPrompt` when the run ends, even if the native CLI rejected the resume.
