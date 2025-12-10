@@ -22,28 +22,21 @@ HyperYOLO is a TypeScript CLI that wraps Codex, Claude Code, and Gemini CLI into
 ```
 hyperyolo/
 ├── src/
-│   ├── index.ts                 # Entry point
-│   ├── commands/                # oclif commands
-│   │   ├── codex.ts
-│   │   ├── claude.ts
-│   │   └── gemini.ts
-│   ├── adapters/                # Backend CLI adapters
-│   │   ├── types.ts             # BackendAdapter interface
-│   │   ├── codex.ts
-│   │   ├── claude.ts
-│   │   └── gemini.ts
-│   ├── core/
-│   │   ├── executor.ts          # Subprocess execution
-│   │   ├── session.ts           # Session ID mapping
-│   │   └── output.ts            # Output parsing
-│   └── ui/
-│       ├── banner.ts            # ASCII art header
-│       ├── footer.ts            # Completion summary
-│       └── theme.ts             # Colors and styles
+│   ├── index.ts                 # Entry point/exports
+│   ├── adapters/                # Adapter contracts
+│   │   └── types.ts             # BackendAdapter interface + ExecutionOptions/Stats
+│   └── core/
+│       ├── executor.ts          # Subprocess execution + timeouts
+│       ├── session-id.ts        # Regex helpers for ID parsing
+│       └── session-store.ts     # Session mapping persistence
 ├── docs/
 │   ├── PRD.md                   # Product requirements
+│   ├── architecture/            # Design docs (adapter contract, session ID, etc.)
 │   └── research/                # Research and planning
 └── tests/
+    ├── executor.timeout.test.ts
+    ├── session-store.test.ts
+    └── mocks/mock-adapter.ts
 ```
 
 ## Key Commands
@@ -59,17 +52,30 @@ npm run lint                     # Lint code
 
 ### Backend Adapter Interface
 
-Each adapter must implement:
+Canonical interface (source of truth: `src/adapters/types.ts`):
 
 ```typescript
 interface BackendAdapter {
   name: 'codex' | 'claude' | 'gemini';
-  isAvailable(): Promise<boolean>;
-  buildArgs(prompt: string, options: ExecutionOptions): string[];
-  parseSessionId(output: string): string | null;
+  sessionIdPattern: RegExp;
+
+  isAvailable(): Promise<{ available: boolean; version?: string; error?: string }>;
+
+  buildCommand(prompt: string, options: ExecutionOptions): {
+    command: string;
+    args: string[];
+    env?: Record<string, string>;
+  };
+
+  parseSessionId(chunk: string, accumulated: string): string | null;
   parseStats(output: string): ExecutionStats | null;
 }
 ```
+
+- `parseSessionId` receives sanitized chunks and can return `null` indefinitely; caller warns and skips session persistence when no ID is found.
+- `parseStats` may return `null` without failing the run; UI shows “stats unavailable.”
+- `isAvailable` must not throw—return `{ available: false, error }` on detection failures.
+- `sessionIdPattern` validates both parsed IDs and user-supplied resume IDs.
 
 ### CLI Argument Translation
 
