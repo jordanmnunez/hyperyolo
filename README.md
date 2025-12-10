@@ -45,6 +45,42 @@ npm install -g hyperyolo
 npx hyperyolo
 ```
 
+## Quickstart
+
+1) Install HyperYOLO (above).
+2) Install and authenticate at least one backend CLI (Codex, Claude Code, or Gemini). See the setup table below.
+3) Run the verification commands to ensure each CLI works before using HyperYOLO.
+4) Run `hyperyolo <backend> "prompt"` as shown in the Usage section.
+
+## Backend CLI Setup (install, auth, verify)
+
+### Codex CLI
+
+- Install: `npm install -g @openai/codex` **or** `brew install --cask codex` (or download a release binary).
+- Authenticate: run `codex` once and choose **Sign in with ChatGPT** (Plus/Team/Enterprise) or set `OPENAI_API_KEY` before running.
+- Verify: `codex --version` then `codex exec --skip-git-repo-check --sandbox read-only "print('ok')"` (expect a session id in output).
+- Common install issues: npm global bin not on `PATH`; Homebrew upgrades can lag (reinstall if version stays stale); outside a git repo use `--skip-git-repo-check` to avoid early exit.
+
+### Claude Code CLI
+
+- Install: `npm install -g @anthropic-ai/claude-code` (or one-off via `npx @anthropic-ai/claude-code@latest --version`).
+- Authenticate: set `ANTHROPIC_API_KEY` or run `claude setup-token` to persist it to `~/.claude`.
+- Verify: `claude --version` then `claude -p "ping" --output-format json --verbose` (should return JSON with `session_id`).
+- Common install issues: missing API key returns `Invalid API key`; `--output-format stream-json` requires `--verbose`; ensure Node 18+.
+
+### Gemini CLI
+
+- Install: `npx https://github.com/google-gemini/gemini-cli` (no install), `npm install -g @google/gemini-cli`, or `brew install gemini-cli`.
+- Authenticate: `gemini login` for Google OAuth in a browser, or set `GEMINI_API_KEY` and run `gemini login --api-key` in headless environments.
+- Verify: `gemini --version` then `gemini -y "ping" -o json` (expect JSON response; use `--approval-mode yolo`/`-y` so shell/edit tools are enabled).
+- Common install issues: requires Node 20+; API-key mode is safer on servers without browsers; YOLO does not auto-enable sandbox—pass `--sandbox` when you want isolation.
+
+### Missing CLI helpful messages (copy/paste)
+
+- Codex: `Codex CLI not found. Install it with: npm install -g @openai/codex (or brew install --cask codex). Then sign in with: codex (choose "Sign in with ChatGPT"). More info: https://github.com/openai/codex`
+- Claude: `Claude CLI not found. Install it with: npm install -g @anthropic-ai/claude-code. Then authenticate with: ANTHROPIC_API_KEY=<your key> claude setup-token. More info: https://docs.anthropic.com/claude/docs/claude-code-cli`
+- Gemini: `Gemini CLI not found. Install it with: npm install -g @google/gemini-cli (or brew install gemini-cli / npx https://github.com/google-gemini/gemini-cli). Then authenticate with: gemini login --api-key <GEMINI_API_KEY> (or browser login). More info: https://geminicli.com/docs`
+
 ## Usage
 
 ### Basic Execution

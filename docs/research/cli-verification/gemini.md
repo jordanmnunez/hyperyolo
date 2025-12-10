@@ -12,6 +12,12 @@
 - `--resume` accepts UUID, index, or empty (`--resume` → latest). Invalid IDs exit 1 with a clear message.
 - Invalid API key returns a 400 with “[object Object]” JSON error body and writes reports to `/var/folders/.../T/gemini-client-error-*.json`; exit code observed as 144.
 
+## Install / Auth / Verify
+- Install: `npx https://github.com/google-gemini/gemini-cli` (no install), or `npm install -g @google/gemini-cli`, or `brew install gemini-cli` (Node 20+ required).
+- Authenticate: `gemini login` (browser OAuth), or headless `gemini login --api-key` after setting `GEMINI_API_KEY`.
+- Verify: `gemini --version` then `gemini -y "ping" -o json` (expect JSON with response/stats; `-y` enables tools in headless mode).
+- Not-found message copy: `Gemini CLI not found. Install it with: npm install -g @google/gemini-cli (or brew install gemini-cli / npx https://github.com/google-gemini/gemini-cli). Then authenticate with: gemini login --api-key <GEMINI_API_KEY> (or browser login). More info: https://geminicli.com/docs`
+
 ## CLI Surface (help/flags)
 - Core flags: `-p/--prompt` (deprecated in help; use positional), `--prompt-interactive`, `-y/--yolo`, `--approval-mode (default|auto_edit|yolo)`, `-o/--output-format (text|json|stream-json)`, `-r/--resume [id|index|latest]`, `--list-sessions`, `--delete-session`, `--sandbox`, `--allowed-tools`, `--allowed-mcp-server-names`.
 - Subcommands: `mcp add/remove/list`; `extensions install|uninstall|list|update|disable|enable|link|new|validate`.

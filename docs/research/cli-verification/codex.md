@@ -10,6 +10,12 @@
 - Resume: `codex exec "<prompt>" resume <uuid>` and `codex exec resume <uuid> "<prompt>"` reuse the given session id; invalid ids start a brand-new session instead of erroring.
 - Git guard: outside a repo, `codex exec` exits with `Not inside a trusted directory and --skip-git-repo-check was not specified.`; adding `--skip-git-repo-check` bypasses it.
 - YOLO/perms: there is no `--yolo` flag. `--dangerously-bypass-approvals-and-sandbox` flips `sandbox: danger-full-access` and immediately runs shell commands without prompting (saw automatic `ls`/`ls -la`).
+
+## Install / Auth / Verify
+- Install: `npm install -g @openai/codex` or `brew install --cask codex` (release tarballs also available on GitHub).
+- Authenticate: run `codex` once and choose **Sign in with ChatGPT** (Plus/Team/Enterprise). `OPENAI_API_KEY` works for API-key auth on supported accounts.
+- Verify: `codex --version` then `codex exec --skip-git-repo-check --sandbox read-only "print('ok')"` should emit a `session id:` line.
+- Not-found message copy: `Codex CLI not found. Install it with: npm install -g @openai/codex (or brew install --cask codex). Then sign in with: codex (choose "Sign in with ChatGPT"). More info: https://github.com/openai/codex`
 - Models/config: `--model gpt-4.1-codex` fails on a ChatGPT account (`"The 'gpt-4.1-codex' model is not supported when using Codex with a ChatGPT account."`). TOML overrides via `-c` work (`-c model_reasoning_effort="low"` reflected in banner). `-c experimental_instructions_file=/tmp/codex-extra.md` returned `{"detail":"Instructions are not valid"}` (expects structured content).
 
 ## CLI Surface (help/flags)

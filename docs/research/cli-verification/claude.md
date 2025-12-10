@@ -12,6 +12,12 @@
 - Permissions: headless `--print` denies file writes by default (tool results error). `--dangerously-skip-permissions` flips `permissionMode` to `bypassPermissions` and auto-runs Write/Bash without prompts.
 - Resume UX: `--resume <uuid>` reuses the same `session_id`; invalid IDs exit 1 with `No conversation found with session ID: ...`. `--continue` resumes the latest session.
 
+## Install / Auth / Verify
+- Install: `npm install -g @anthropic-ai/claude-code` (or `npx @anthropic-ai/claude-code@latest --version` for one-off checks).
+- Authenticate: set `ANTHROPIC_API_KEY` (env) or run `claude setup-token` to save it to `~/.claude`.
+- Verify: `claude --version` then `claude -p "ping" --output-format json --verbose` should return JSON containing `session_id`.
+- Not-found message copy: `Claude CLI not found. Install it with: npm install -g @anthropic-ai/claude-code. Then authenticate with: ANTHROPIC_API_KEY=<your key> claude setup-token. More info: https://docs.anthropic.com/claude/docs/claude-code-cli`
+
 ## CLI Surface (help/flags)
 - `claude --help` shows interactive by default; `-p/--print` for headless. Subcommands: `mcp`, `plugin`, `setup-token`, `doctor`, `update`, `install`. Version: `claude --version` → `2.0.62 (Claude Code)`.
 - Core flags: `--output-format (text|json|stream-json)`, `--include-partial-messages` (stream only), `--input-format (text|stream-json)`, `--dangerously-skip-permissions` / `--allow-dangerously-skip-permissions`, `--permission-mode (acceptEdits|bypassPermissions|default|dontAsk|plan)`, `-c/--continue`, `-r/--resume [uuid|search]`, `--fork-session`, `--model`, `--agent`, `--session-id <uuid>`, `--mcp-config`, `--tools/--allowed-tools/--disallowed-tools`, `--plugin-dir`, `--disable-slash-commands`.
