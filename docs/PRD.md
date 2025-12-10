@@ -466,6 +466,41 @@ steps:
 
 ---
 
+## Known Limitations
+
+### Per-Backend (from verification)
+
+- **Codex CLI**
+  - Tool authorization: no `--yolo`; full auto requires `--dangerously-bypass-approvals-and-sandbox`, which also disables sandboxing. Workaround: use Codex directly with `--full-auto --sandbox read-only` if you need guardrails.
+  - Environment guard: exits outside a git repo unless `--skip-git-repo-check` is set. Run inside a repo or add the flag when launching from temp directories.
+  - Session resume: invalid IDs silently start a brand-new session. HyperYOLO must validate IDs before resuming; if validation fails, start a fresh run.
+  - Output format: structured stats only appear with `--json`; text mode is noisy but still emits `session id: ...`. HyperYOLO will request JSON; if parsing fails, resume/stats are skipped for that run.
+  - Model availability: ChatGPT accounts reject `gpt-4.1-codex`; stick to `gpt-5.1-codex-max` with fallback to `gpt-5.1-codex`.
+
+- **Claude Code CLI**
+  - Output format: `--output-format stream-json` requires `--verbose` or the CLI exits 1. HyperYOLO always pairs them.
+  - Tool authorization: headless `--print` denies Write/Bash without `--dangerously-skip-permissions`; use that flag for unattended runs or run interactively when you want approvals.
+  - Session IDs: text output does not include `session_id`; JSON/stream modes are required for resume/stats.
+  - Resume handling: invalid `--resume` values error out; stale HyperYOLO IDs will fail fast. Start a new session if the underlying session file was pruned.
+  - Model availability: default alias `sonnet` maps to `claude-3-7-sonnet-latest`; alternate models can be rejected. Fall back to `sonnet` when validation fails.
+
+- **Gemini CLI**
+  - Tool authorization: in headless mode shell/edit/write tools are removed unless `-y/--approval-mode yolo` is set; otherwise `tool_not_registered` errors appear. Use `-y` for automation.
+  - Sandbox: `-y` does not enable sandboxing; destructive commands run on host unless `--sandbox`/`GEMINI_SANDBOX` is set.
+  - Session IDs/output: default text output lacks session IDs; use `-o stream-json`/`json` for resume/stats. HyperYOLO relies on stream JSON.
+  - Error surfaces: invalid API keys return `[object Object]` with exit code 144 and drop temp error files under `/var/folders/.../T`.
+  - Model availability: `-m auto` resolves to `gemini-2.5-pro` with an internal fallback to `gemini-2.5-flash`; preview models depend on account capabilities.
+
+### HyperYOLO Wrapper
+
+- Does not expose provider-specific surfaces (`mcp`, `plugin/extension` management, approval/sandbox/model tuning flags, allowed-tools lists); use the native CLIs for those workflows.
+- macOS/Linux only; requires Node 18+ (Gemini CLI needs Node 20+). Windows is unsupported.
+- Session store is a single-user JSON file; concurrent runs rely on advisory locks and are not multi-machine safe. Resume will fail if the native CLI has pruned its session file even when HyperYOLO still has a mapping.
+- Session retention defaults to 30 days; stale IDs are not auto-deleted and may fail to resume. Start a fresh session or prune via `hyperyolo sessions clean`.
+- If CLI output formats change or ANSI/TTY quirks block parsing, HyperYOLO falls back to streaming without stats/resume for that run; use the native CLI directly when parsing-sensitive features break.
+
+---
+
 ## Risk Assessment
 
 | Risk | Severity | Mitigation |

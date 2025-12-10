@@ -172,6 +172,13 @@ HyperYOLO wraps the official CLIs instead. This preserves:
 
 You get all the work each CLI team has done, with a consistent interface.
 
+## Known Limitations
+
+- Codex: exits outside a git repo unless `--skip-git-repo-check` is set; there is no `--yolo`, so HyperYOLO uses `--dangerously-bypass-approvals-and-sandbox` for unattended runs (disables sandbox). Invalid resume IDs make Codex start a new session, so only use HyperYOLO-issued IDs.
+- Claude: `--output-format stream-json` must be paired with `--verbose` or it exits 1; text output has no `session_id`. Headless runs block Write/Bash without `--dangerously-skip-permissions`.
+- Gemini: headless mode removes shell/edit/write tools unless `-y/--approval-mode yolo` is set; `-y` does not enable sandboxing (add `--sandbox` explicitly). Text output lacks session IDs; invalid API keys surface `[object Object]` errors and exit code 144.
+- HyperYOLO wrapper: only wraps the main execution path (no provider-specific `mcp`, plugin/extension, approval/sandbox/model tuning flags). macOS/Linux only; Node 18+ required (Gemini CLI needs Node 20+). Resume can fail if a native session file was pruned or if upstream output formats change—start a new session or run the native CLI in that case.
+
 ## Project Status
 
 **Pre-release** — MVP in development.
