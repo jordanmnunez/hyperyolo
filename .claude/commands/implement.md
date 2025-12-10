@@ -49,6 +49,10 @@ You are implementing the HyperYOLO CLI wrapper. Work through tasks systematicall
 
 6. **Repeat** with next unblocked task
 
+7. **Commit your changes** when all tasks are complete:
+   - Stage and commit all implementation work
+   - Use a descriptive commit message summarizing what was implemented
+
 ## Key References
 
 - **Adapter interface**: `src/adapters/types.ts` (source of truth)
