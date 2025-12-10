@@ -164,6 +164,15 @@ Resume: hyperyolo claude --resume hyper_abc123 "continue"
 - Detection starts immediately at spawn (idle timer counts from time zero) and resets on every output chunk; the first timer to trigger wins.
 - On timeout: send SIGTERM, then SIGKILL after the grace period if still running; surface a clear `TimeoutError` with reason (absolute/idle), elapsed time, last output timestamp, and whether SIGKILL was required. Callers may persist session metadata before teardown.
 
+### 8. Error Handling
+
+- Error taxonomy and user-facing copy live in `src/core/errors.ts`; full playbooks in `docs/architecture/error-handling.md`.
+- Categories: `cli-binary`, `auth`, `session`, `process`, `output-parsing`, `network`, `filesystem`; explicit codes for each (e.g., `CLI_NOT_FOUND`, `AUTH_RATE_LIMITED`, `PARSE_SESSION_ID_MISSING`).
+- Severities: `fatal` (stop), `retryable` (user can retry with backoff/flag tweaks), `warning` (continue with degraded features). Defaults live in `DEFAULT_ERROR_SEVERITY`.
+- Non-throwing parsing/availability: adapter `isAvailable` returns `{ available: false, error }`; parsing hooks return `null` on failure. Warnings should not flip the exit code.
+- Recovery-first UX: every code maps to a headline, detail, and recovery hint via `formatUserFacingError`; stdout/stderr stay intact for debugging.
+- Resume safety: do not persist unknown session IDs; on parsing failures disable resume/stats but keep streaming. Session writes stay atomic with lock + temp-write/rename; fallback to read-only with a warning when the store is corrupted or unwritable.
+
 ---
 
 ## Architecture
