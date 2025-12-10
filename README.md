@@ -4,7 +4,7 @@ A unified CLI wrapper for autonomous AI code execution. One interface for Codex,
 
 ```bash
 # Instead of three different syntaxes:
-codex exec --yolo "fix the bug"
+codex exec --dangerously-bypass-approvals-and-sandbox "fix the bug"
 claude -p "fix the bug" --dangerously-skip-permissions
 gemini -p "fix the bug" --yolo
 
@@ -157,7 +157,7 @@ Options:
 |-----------|-------|--------|--------|
 | `"prompt"` | `exec "prompt"` | `-p "prompt"` | `-p "prompt"` |
 | `--resume ID` | `resume <id>` | `--resume <id>` | `-r <id>` |
-| (auto) | `--yolo` | `--dangerously-skip-permissions` | `-y` |
+| (auto) | `--dangerously-bypass-approvals-and-sandbox` | `--dangerously-skip-permissions` | `-y` |
 
 ## Why Wrapper, Not API Client?
 

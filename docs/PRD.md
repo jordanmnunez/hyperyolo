@@ -12,7 +12,7 @@ HyperYOLO normalizes three AI coding CLIs into a single interface optimized for 
 
 ```bash
 # Instead of remembering three different syntaxes:
-codex exec --yolo "fix the bug"
+codex exec --dangerously-bypass-approvals-and-sandbox "fix the bug"
 claude -p "fix the bug" --dangerously-skip-permissions
 gemini -p "fix the bug" --yolo
 
@@ -68,6 +68,10 @@ HyperYOLO preserves all of this by delegating to the real CLIs.
 
 None of these are CLI wrappers that preserve native CLI functionality.
 
+## Pre-Implementation Plan
+
+Research outputs, locked decisions (runtime, storage, streaming/tee strategy, parsing rules), and the version compatibility matrix (Codex 0.66.0, Claude 2.0.62, Gemini 0.19.3) are consolidated in `docs/pre-implementation-plan.md`. Implementation should track that plan and surface version warnings when a detected CLI is below the documented baseline.
+
 ---
 
 ## Core Requirements
@@ -88,7 +92,7 @@ HyperYOLO always applies maximum settings:
 
 | Backend | YOLO Flag | Model | Other |
 |---------|-----------|-------|-------|
-| Codex | `--yolo` | `gpt-5.1-codex-max` | — |
+| Codex | `--dangerously-bypass-approvals-and-sandbox` | `gpt-5.1-codex-max` | `--skip-git-repo-check` recommended outside git repos |
 | Claude | `--dangerously-skip-permissions` | (default) | `--max-turns` unset |
 | Gemini | `--yolo` or `-y` | (default) | Auto-sandboxed |
 
@@ -220,7 +224,7 @@ interface ExecutionStats {
 |-----------|-------|--------|--------|
 | `"prompt"` | `exec "prompt"` | `-p "prompt"` | `-p "prompt"` |
 | `--resume ID` | `resume <nativeId>` (after prompt) | `--resume <nativeId>` (before -p) | `-r <nativeId>` |
-| (auto) | `--yolo` | `--dangerously-skip-permissions` | `-y` |
+| (auto) | `--dangerously-bypass-approvals-and-sandbox` | `--dangerously-skip-permissions` | `-y` |
 | (auto) | — | `--output-format stream-json` | `-o stream-json` |
 
 ### Session ID Extraction
@@ -443,3 +447,4 @@ steps:
 - [AI CLI Comparison Doc](./ai-cli-comparison.md) — Detailed CLI flag documentation
 - [Research Analysis](./research/analysis.md) — Comparison of Claude/Gemini/ChatGPT planning outputs
 - [Original Prompt](./research/prompt.md) — Initial research prompt
+- [Pre-Implementation Plan](./pre-implementation-plan.md) — Readiness checklist, locked decisions, and version baselines
