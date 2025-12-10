@@ -367,8 +367,8 @@ export function formatUserFacingError(error: HyperYoloError): UserFacingError {
         recovery: 'Free disk space and rerun; temporary files may need cleanup.'
       };
     default: {
-      const _ exhaustiveCheck: never = error;
-      return _ exhaustiveCheck;
+      const _exhaustiveCheck: never = error;
+      return _exhaustiveCheck;
     }
   }
 }

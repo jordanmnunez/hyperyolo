@@ -1,31 +1,56 @@
 {
   "name": "hyperyolo",
-  "version": "1.0.0",
-  "description": "A unified CLI wrapper for autonomous AI code execution. One interface for Codex, Claude Code, and Gemini CLI.",
+  "version": "0.1.0",
+  "description": "Unified CLI wrapper for autonomous AI code execution",
   "type": "module",
   "main": "dist/index.js",
-  "directories": {
-    "doc": "docs"
+  "bin": {
+    "hyperyolo": "dist/cli.js"
   },
   "scripts": {
+    "build": "tsup src/index.ts src/cli.ts --format esm --dts",
+    "dev": "tsx src/cli.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "tsc -p tsconfig.build.json"
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
+  "keywords": [
+    "cli",
+    "ai",
+    "codex",
+    "claude",
+    "gemini",
+    "automation"
+  ],
   "author": "",
   "license": "MIT",
   "engines": {
-    "node": ">=18"
+    "node": ">=18.0.0"
   },
   "dependencies": {
-    "execa": "^9.6.1",
-    "proper-lockfile": "^4.1.2"
+    "boxen": "^8.0.0",
+    "chalk": "^5.0.0",
+    "commander": "^12.1.0",
+    "execa": "^9.0.0",
+    "figlet": "^1.0.0",
+    "gradient-string": "^2.0.0",
+    "is-unicode-supported": "^2.0.0",
+    "ora": "^8.0.0",
+    "proper-lockfile": "^4.0.0",
+    "strip-ansi": "^7.0.0",
+    "supports-color": "^9.0.0"
   },
   "devDependencies": {
-    "@types/node": "^24.10.2",
-    "@types/proper-lockfile": "^4.1.4",
-    "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "@types/figlet": "^1.0.0",
+    "@types/gradient-string": "^1.0.0",
+    "@types/node": "^20.0.0",
+    "@types/proper-lockfile": "^4.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
   }
 }
