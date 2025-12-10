@@ -277,10 +277,10 @@ HyperYOLO generates its own ID (`hyper_<8hex>`) and maps to the native ID.
 
 Research in `docs/research/analysis.md` recommended **Go** for single-binary distribution and minimal runtime friction, but we are committing to **TypeScript/Node** for the MVP.
 
-- **Rationale (why TypeScript now):** Fastest path for the team (existing execa streaming patterns from Beads Runner), direct access to the maximalist npm UI stack (chalk/gradient-string/figlet/boxen/ora), and oclif’s plugin model fits the multi-backend CLI layout without extra scaffolding.
-- **Trade-offs we accept:** Requires Node.js 18+, larger packaged size (~50MB with a bundled runtime vs ~10MB Go), slightly slower cold start/higher memory, and distribution via npm/tarballs instead of a single static binary.
+- **Rationale (why TypeScript now):** Fastest path for the team (existing execa streaming patterns from Beads Runner) with minimal Commander scaffolding, plus direct access to the maximalist npm UI stack (chalk/gradient-string/figlet/boxen/ora). Commander keeps the CLI surface lightweight while we validate the product; we can swap to oclif later if a plugin marketplace becomes a requirement.
+- **Trade-offs we accept:** Requires Node.js 18+, larger packaged size (~50MB with a bundled runtime vs ~10MB Go), slightly slower cold start/higher memory, and manual structure for any future plugin/extensibility story (no baked-in plugin host like oclif).
 - **Benefits realized:** Rapid iteration speed, easy contributor onboarding, and reuse of prior TypeScript utilities outweigh distribution simplicity for our developer audience (who already have Node installed).
-- **Future considerations:** Revisit a Go rewrite if installation friction becomes a top complaint, if offline/air-gapped single-binary delivery becomes P0, or if startup/perf constraints tighten. Mitigate meanwhile with optional bundling (`pkg`, `bunx --compile`) to reduce runtime dependency while keeping the TypeScript codebase.
+- **Future considerations:** Revisit a Go rewrite if installation friction becomes a top complaint, if offline/air-gapped single-binary delivery becomes P0, or if startup/perf constraints tighten. Mitigate meanwhile with optional bundling (`pkg`, `bunx --compile`) to reduce runtime dependency while keeping the TypeScript codebase. Re-evaluate oclif when we need first-class plugin hosting or user-installable backends.
 
 ## Tech Stack
 
@@ -290,19 +290,19 @@ Chosen for:
 - Developer familiarity (fastest path to shipping)
 - Rich npm ecosystem for CLI aesthetics
 - Proven patterns from Beads Runner (`execa` streaming)
-- `oclif` plugin architecture for future extensibility
 
 Trade-offs accepted:
 - Requires Node.js runtime (users are developers, they have it)
 - Larger binary if bundled (~50MB vs ~10MB for Go)
 - Slower startup (~200ms vs ~30ms) — negligible for AI tasks
 
-### CLI Framework: oclif
+### CLI Framework: Commander (MVP)
 
-- TypeScript-native
-- Plugin architecture built-in
-- Subcommand support (`hyperyolo codex`, `hyperyolo claude`, etc.)
-- Auto-generated help
+- Minimal API and small dependency surface; fastest to wire the three backend commands
+- TypeScript-friendly without a generator; we own the argument parsing layout
+- Auto-generated help and subcommand support cover MVP needs
+- Plugin path lives in `docs/architecture/cli-framework-decision.md`; migrate to oclif later if we need user-installable backends
+- Estimated time savings vs oclif: ~0.5–1 engineering day for MVP scaffolding (no generator, command class boilerplate, or plugin packaging)
 
 ### Terminal UI Libraries
 

@@ -14,7 +14,7 @@ This document locks in the research outputs and decisions needed before writing 
 
 ## Locked Decisions (with rationale)
 
-- **Runtime and CLI framework**: TypeScript on Node 18+ with oclif. Chooses developer velocity and npm ecosystem for maximalist UI; plugin-ready if we ever add more backends.
+- **Runtime and CLI framework**: TypeScript on Node 18+ with Commander for the MVP. Keeps the CLI surface light and fastest to ship; migrate to oclif later if user-installable plugins become required (`docs/architecture/cli-framework-decision.md`).
 - **Subprocess execution**: `execa` in streaming mode. Tee stdout/stderr to (a) terminal passthrough and (b) parser pipeline. Honor backpressure by writing chunks directly to `process.stdout`/`stderr` without buffering beyond parser needs.
 - **Timeouts**: Default absolute timeout 30m per run (configurable flag); idle timeout 5m of no output triggers a graceful kill. Strategy: send SIGTERM, wait 5s, then SIGKILL; surface a clear timeout error with partial session info.
 - **Signal handling**: Forward SIGINT/SIGTERM to child; stop accepting new output, flush session mapping, then exit with the child’s code (or 130 for Ctrl+C). Document that SIGKILL cannot be trapped.
@@ -47,7 +47,7 @@ Monitoring plan: on startup, adapters parse the version output and warn if below
 
 ## Implementation Plan (order of execution)
 
-1. Scaffold the oclif project (`src/index.ts`, backend subcommands) and shared types.
+1. Scaffold the Commander entrypoint (`src/index.ts` or `src/cli.ts`, backend subcommands) and shared types.
 2. Implement session store module (JSON path resolution, locking, atomic writes, in-memory cache).
 3. Build the executor with streaming tee, ANSI-aware parser branch, timeout/idle handling, and signal forwarding.
 4. Implement adapters for Codex/Claude/Gemini using the format selection and ID parsing rules above; include version checks and helpful not-found errors.
