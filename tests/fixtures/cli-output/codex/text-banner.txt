@@ -1,0 +1,6 @@
+codex 0.66.0 - workspace /Users/jordan/hyperyolo
+model: gpt-5.1-codex-max  approval: never  sandbox: read-only  reasoning: xhigh
+session id: 019b0523-d79c-7401-b0a7-e0686a83d6e1
+user: Reply with PING
+codex: PING
+tokens used 357
