@@ -172,6 +172,8 @@ Resume: hyperyolo claude --resume hyper_abc123 "continue"
 - Non-throwing parsing/availability: adapter `isAvailable` returns `{ available: false, error }`; parsing hooks return `null` on failure. Warnings should not flip the exit code.
 - Recovery-first UX: every code maps to a headline, detail, and recovery hint via `formatUserFacingError`; stdout/stderr stay intact for debugging.
 - Resume safety: do not persist unknown session IDs; on parsing failures disable resume/stats but keep streaming. Session writes stay atomic with lock + temp-write/rename; fallback to read-only with a warning when the store is corrupted or unwritable.
+- Rate limits: treat CLI-surfaced throttling (e.g., Claude stream-json `error:"rate_limit"` with text `Limit reached · resets 2pm (America/Denver) · /upgrade...`) as `AUTH_RATE_LIMITED` (retryable). Keep the native message in the stream, add a footer hint with the reset time when present, preserve the session mapping for `--resume` after backoff, and do not auto-loop retries—just exit with the CLI code and guidance to wait or switch backends.
+- Rate limit implementation plan (no auto-retry): adapters detect provider-specific throttling markers and map to `AUTH_RATE_LIMITED`; executor streams the native message unmodified, augments the footer with any reset window parsed from the payload, exits with the original CLI code, and preserves session writes for future `--resume`; tests add fixtures for Claude stream-json `error:"rate_limit"` plus Codex/Gemini equivalents to assert classification, footer hint, and no automatic retry loop.
 
 ---
 
