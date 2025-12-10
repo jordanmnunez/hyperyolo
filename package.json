@@ -1,0 +1,29 @@
+{
+  "name": "hyperyolo",
+  "version": "1.0.0",
+  "description": "A unified CLI wrapper for autonomous AI code execution. One interface for Codex, Claude Code, and Gemini CLI.",
+  "type": "module",
+  "main": "dist/index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "execa": "^9.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.2",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

@@ -151,6 +151,13 @@ Resume: hyperyolo claude --resume hyper_abc123 "continue"
 - Select a tier per `docs/research/terminal-capabilities.md`: **Maximal** (TrueColor + emoji + box drawing), **Vivid** (256-color gradients), **Minimal Color** (16-color, ASCII emoji), or **Monochrome** (ANSI stripped, ASCII borders only).
 - Keep parsing ANSI-agnostic (use stripped output for regex/JSON) while the UI path styles with the chosen tier; log the tier and width in debug output for supportability.
 
+### 7. Timeout Handling
+
+- Default **absolute timeout: 30m** per run; **idle timeout: 5m** of no stdout/stderr; **grace period: 5s** between SIGTERM and SIGKILL. Defaults live per backend and can diverge if a CLI needs extra headroom.
+- Flags/config: `--timeout <duration>` (absolute), `--idle-timeout <duration>`, and `--no-timeout` to disable both timers for intentionally long jobs. Any timer can be disabled with `0`/`null` in config.
+- Detection starts immediately at spawn (idle timer counts from time zero) and resets on every output chunk; the first timer to trigger wins.
+- On timeout: send SIGTERM, then SIGKILL after the grace period if still running; surface a clear `TimeoutError` with reason (absolute/idle), elapsed time, last output timestamp, and whether SIGKILL was required. Callers may persist session metadata before teardown.
+
 ---
 
 ## Architecture
