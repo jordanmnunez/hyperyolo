@@ -37,10 +37,10 @@ Use a **JSON file** stored at `~/.config/hyperyolo/sessions.json`, protected by 
 - **Atomic writes**: Under the lock, write to `sessions.json.tmp`, `fsync`/close, then `rename` to `sessions.json` (atomic on the same filesystem). Always ensure the parent directory exists with `0700` perms.
 - **Read isolation**: Read-only operations may take the same lock briefly to avoid tearing during concurrent writes; if we allow unlocked reads, retry once on JSON parse errors to guard against mid-write views.
 - **Failure handling**: If the lock cannot be acquired after retries, emit a clear warning and treat the store as read-only for that operation rather than risking corruption.
+- **Implementation defaults**: Lock attempts use `proper-lockfile` with `stale=30s`, `retries` (10 attempts, jittered 25–250ms), and `realpath=false` so the file does not need to pre-exist. Reads try to take the lock and fall back to an unlocked read with a warning if they cannot; writes/updates fail fast on lock errors to avoid corruption. Temp files are `sessions.json.tmp` and are removed if rename fails.
 
 ## When to Revisit SQLite
 Switch to SQLite if/when:
 - We ship built-in `sessions list/show/clean` commands with filtering/sorting over large record sets.
 - Multi-user or daemonized usage appears (shared hosts, background agents).
 - Session metadata grows beyond the guardrails (e.g., routinely >500 records or >5 MB) and JSON load times become noticeable.
-
