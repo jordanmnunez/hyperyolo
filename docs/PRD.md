@@ -144,6 +144,13 @@ Duration: 47.3s | Tokens: 12,847 | Cost: $0.42
 Resume: hyperyolo claude --resume hyper_abc123 "continue"
 ```
 
+### 6. Graceful Degradation
+
+- Detect capabilities via `supports-color` (respect `NO_COLOR`, `FORCE_COLOR`, `CI`, non-TTY defaults) and `is-unicode-supported`; non-TTY output is treated as monochrome unless forced.
+- Determine width from `process.stdout.columns` (fallback 80), clamp for very narrow terminals, and recompute on `SIGWINCH` without rerendering prior stream output.
+- Select a tier per `docs/research/terminal-capabilities.md`: **Maximal** (TrueColor + emoji + box drawing), **Vivid** (256-color gradients), **Minimal Color** (16-color, ASCII emoji), or **Monochrome** (ANSI stripped, ASCII borders only).
+- Keep parsing ANSI-agnostic (use stripped output for regex/JSON) while the UI path styles with the chosen tier; log the tier and width in debug output for supportability.
+
 ---
 
 ## Architecture
