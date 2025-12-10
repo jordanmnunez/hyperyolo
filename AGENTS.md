@@ -1,10 +1,10 @@
-# HyperYOLO - AI Agent Guide
+# hyperyolo - AI Agent Guide
 
 Instructions for AI agents (Claude, Codex, Gemini) working on this codebase.
 
 ## Project Overview
 
-HyperYOLO is a TypeScript CLI that wraps Codex, Claude Code, and Gemini CLI into a unified interface for autonomous AI execution.
+hyperyolo is a TypeScript CLI that wraps Codex, Claude Code, and Gemini CLI into a unified interface for autonomous AI execution.
 
 **Key concept**: This is a CLI *wrapper*, not an API client. It spawns the official CLIs as subprocesses and normalizes their interfaces.
 
@@ -81,7 +81,7 @@ interface BackendAdapter {
 
 ### CLI Argument Translation
 
-| HyperYOLO | Codex | Claude | Gemini |
+| hyperyolo | Codex | Claude | Gemini |
 |-----------|-------|--------|--------|
 | `"prompt"` | `exec "prompt"` | `-p "prompt"` | `-p "prompt"` |
 | `--resume ID` | `resume <id>` (after prompt) | `--resume <id>` (before -p) | `-r <id>` |
@@ -90,7 +90,7 @@ interface BackendAdapter {
 
 ### Session Management
 
-HyperYOLO generates its own session IDs (`hyper_<8hex>`) and maps them to native CLI session IDs:
+hyperyolo generates its own session IDs (`hyper_<8hex>`) and maps them to native CLI session IDs:
 
 ```json
 {

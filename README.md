@@ -1,4 +1,4 @@
-# HyperYOLO
+# hyperyolo
 
 A unified CLI wrapper for autonomous AI code execution. One interface for Codex, Claude Code, and Gemini CLI.
 
@@ -31,7 +31,7 @@ hyperyolo gemini "fix the bug"
 ## Requirements
 
 - Node.js 18+ (Gemini CLI requires Node 20+)
-- CLI version baselines (HyperYOLO warns when below these): Codex ≥ 0.66.0, Claude Code ≥ 2.0.62, Gemini CLI ≥ 0.19.3. See `docs/cli-compatibility.md` for the full matrix.
+- CLI version baselines (hyperyolo warns when below these): Codex ≥ 0.66.0, Claude Code ≥ 2.0.62, Gemini CLI ≥ 0.19.3. See `docs/cli-compatibility.md` for the full matrix.
 - At least one of the underlying CLIs installed and configured:
   - [Codex CLI](https://github.com/openai/codex)
   - [Claude Code](https://claude.ai/code)
@@ -48,9 +48,9 @@ npx hyperyolo
 
 ## Quickstart
 
-1) Install HyperYOLO (above).
+1) Install hyperyolo (above).
 2) Install and authenticate at least one backend CLI (Codex, Claude Code, or Gemini). See the setup table below.
-3) Run the verification commands to ensure each CLI works before using HyperYOLO.
+3) Run the verification commands to ensure each CLI works before using hyperyolo.
 4) Run `hyperyolo <backend> "prompt"` as shown in the Usage section.
 
 ## Backend CLI Setup (install, auth, verify)
@@ -154,7 +154,7 @@ Options:
 
 ### Flag Translation
 
-| HyperYOLO | Codex | Claude | Gemini |
+| hyperyolo | Codex | Claude | Gemini |
 |-----------|-------|--------|--------|
 | `"prompt"` | `exec "prompt"` | `-p "prompt"` | `-p "prompt"` |
 | `--resume ID` | `resume <id>` | `--resume <id>` | `-r <id>` |
@@ -164,7 +164,7 @@ Options:
 
 Tools like [Crush](https://github.com/charmbracelet/crush) and [Aider](https://github.com/paul-gauthier/aider) call AI APIs directly. They're full implementations with their own tool execution, sandboxing, and session management.
 
-HyperYOLO wraps the official CLIs instead. This preserves:
+hyperyolo wraps the official CLIs instead. This preserves:
 - Native sandboxing (Gemini's Docker isolation)
 - Native context compaction (Claude's summarization)
 - Native MCP support
@@ -175,10 +175,10 @@ You get all the work each CLI team has done, with a consistent interface.
 
 ## Known Limitations
 
-- Codex: exits outside a git repo unless `--skip-git-repo-check` is set; there is no `--yolo`, so HyperYOLO uses `--dangerously-bypass-approvals-and-sandbox` for unattended runs (disables sandbox). Invalid resume IDs make Codex start a new session, so only use HyperYOLO-issued IDs.
+- Codex: exits outside a git repo unless `--skip-git-repo-check` is set; there is no `--yolo`, so hyperyolo uses `--dangerously-bypass-approvals-and-sandbox` for unattended runs (disables sandbox). Invalid resume IDs make Codex start a new session, so only use hyperyolo-issued IDs.
 - Claude: `--output-format stream-json` must be paired with `--verbose` or it exits 1; text output has no `session_id`. Headless runs block Write/Bash without `--dangerously-skip-permissions`.
 - Gemini: headless mode removes shell/edit/write tools unless `-y/--approval-mode yolo` is set; `-y` does not enable sandboxing (add `--sandbox` explicitly). Text output lacks session IDs; invalid API keys surface `[object Object]` errors and exit code 144.
-- HyperYOLO wrapper: only wraps the main execution path (no provider-specific `mcp`, plugin/extension, approval/sandbox/model tuning flags). macOS/Linux only; Node 18+ required (Gemini CLI needs Node 20+). Resume can fail if a native session file was pruned or if upstream output formats change—start a new session or run the native CLI in that case.
+- hyperyolo wrapper: only wraps the main execution path (no provider-specific `mcp`, plugin/extension, approval/sandbox/model tuning flags). macOS/Linux only; Node 18+ required (Gemini CLI needs Node 20+). Resume can fail if a native session file was pruned or if upstream output formats change—start a new session or run the native CLI in that case.
 
 ## Project Status
 

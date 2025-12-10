@@ -1,14 +1,14 @@
-# HyperYOLO: Technical architecture for unified AI CLI execution
+# hyperyolo: Technical architecture for unified AI CLI execution
 
-**Go with Charm/Bubble Tea is the recommended stack** for building HyperYOLO—a maximalist CLI wrapper that unifies Codex CLI, Claude Code, and Gemini CLI. This choice balances the project's core requirements: stunning visual aesthetics, reliable process management, simple distribution, and single-developer maintainability. The architecture uses an adapter pattern with SQLite session storage and a kubectl-style plugin system for future extensibility.
+**Go with Charm/Bubble Tea is the recommended stack** for building hyperyolo—a maximalist CLI wrapper that unifies Codex CLI, Claude Code, and Gemini CLI. This choice balances the project's core requirements: stunning visual aesthetics, reliable process management, simple distribution, and single-developer maintainability. The architecture uses an adapter pattern with SQLite session storage and a kubectl-style plugin system for future extensibility.
 
 ## The case for Go and the Charm ecosystem
 
-After evaluating TypeScript, Rust, Go, and Python against HyperYOLO's specific requirements, **Go with the Charm ecosystem emerges as the clear winner** with a weighted score of 37/40 compared to TypeScript's 32, Rust's 32, and Python's 27.
+After evaluating TypeScript, Rust, Go, and Python against hyperyolo's specific requirements, **Go with the Charm ecosystem emerges as the clear winner** with a weighted score of 37/40 compared to TypeScript's 32, Rust's 32, and Python's 27.
 
 The Charm ecosystem (Bubble Tea, Lip Gloss, Bubbles) was purpose-built for exactly this use case. Over **4,000 applications** have been built with Bubble Tea, including production tools from AWS, NVIDIA, Microsoft Azure, and CockroachDB. Lip Gloss provides CSS-like declarative styling with full color support, borders, and padding. The Elm-inspired Model-Update-View architecture naturally handles concurrent stream updates without race conditions.
 
-Three factors make Go particularly suited to HyperYOLO:
+Three factors make Go particularly suited to hyperyolo:
 
 1. **Process management perfection**: Goroutines and `io.MultiWriter` make the tee pattern trivial to implement—spawning subprocess streams while simultaneously displaying and parsing output requires just a few lines of idiomatic Go code.
 
@@ -20,7 +20,7 @@ Three factors make Go particularly suited to HyperYOLO:
 
 ## CLI framework architecture with Cobra
 
-**Cobra** is the industry-standard Go CLI framework, powering kubectl, docker, gh CLI, and Hugo. Its hierarchical command structure maps naturally to HyperYOLO's interface:
+**Cobra** is the industry-standard Go CLI framework, powering kubectl, docker, gh CLI, and Hugo. Its hierarchical command structure maps naturally to hyperyolo's interface:
 
 ```
 hyperyolo                      # Interactive backend selector
@@ -36,22 +36,22 @@ Cobra's integration with **Viper** provides configuration precedence: command-li
 
 The key architectural decision is **argument passthrough**. Each backend CLI has different flag conventions:
 
-| HyperYOLO | Codex CLI | Claude Code | Gemini CLI |
+| hyperyolo | Codex CLI | Claude Code | Gemini CLI |
 |-----------|-----------|-------------|------------|
 | `--continue` | `resume --last` | `--continue` | `/chat resume` |
 | `--resume ID` | `resume <ID>` | `--resume <ID>` | `/chat resume <tag>` |
 | `--model X` | `--model X` | `-m X` | `-m X` |
 | `"prompt"` | positional | `-p "prompt"` | `-p "prompt"` |
 
-The adapter layer translates HyperYOLO's normalized interface to backend-specific arguments using declarative TOML mappings.
+The adapter layer translates hyperyolo's normalized interface to backend-specific arguments using declarative TOML mappings.
 
 ## Backend adapter pattern design
 
-The adapter pattern isolates HyperYOLO from the volatility of underlying CLIs. **OpenCode, a similar multi-provider AI CLI tool, was archived in September 2025** after maintaining support for 7+ providers became unsustainable. HyperYOLO's adapter architecture is designed to prevent this fate.
+The adapter pattern isolates hyperyolo from the volatility of underlying CLIs. **OpenCode, a similar multi-provider AI CLI tool, was archived in September 2025** after maintaining support for 7+ providers became unsustainable. hyperyolo's adapter architecture is designed to prevent this fate.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     HyperYOLO Core                          │
+│                     hyperyolo Core                          │
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │           Unified Interface (BackendAdapter)          │  │
 │  │  Execute(prompt, options) → AsyncIterator<Output>     │  │
@@ -71,11 +71,11 @@ The adapter pattern isolates HyperYOLO from the volatility of underlying CLIs. *
 
 Each adapter implements three responsibilities:
 
-1. **Command building**: Translate HyperYOLO's normalized request into backend-specific CLI arguments. Codex uses `codex exec "prompt" --json`, Claude uses `claude -p "prompt" --output-format stream-json`, Gemini uses `gemini -p "prompt" --output-format stream-json`.
+1. **Command building**: Translate hyperyolo's normalized request into backend-specific CLI arguments. Codex uses `codex exec "prompt" --json`, Claude uses `claude -p "prompt" --output-format stream-json`, Gemini uses `gemini -p "prompt" --output-format stream-json`.
 
 2. **Output parsing**: All three CLIs support JSON output modes. Codex emits JSONL events with types like `item.completed` and `task.completed`. Claude emits stream-json with `type: "result"` containing session_id and cost. Gemini emits newline-delimited JSON events.
 
-3. **Session mapping**: HyperYOLO generates its own UUID session IDs that map to backend-specific identifiers. Codex uses UUIDs, Claude uses UUIDs tied to directory paths, Gemini uses user-defined tags.
+3. **Session mapping**: hyperyolo generates its own UUID session IDs that map to backend-specific identifiers. Codex uses UUIDs, Claude uses UUIDs tied to directory paths, Gemini uses user-defined tags.
 
 ## Stream tee pattern for real-time output
 
@@ -130,7 +130,7 @@ For JSON parsing, strip ANSI codes before extraction: `ansiEscape.ReplaceAllStri
 
 ```sql
 CREATE TABLE sessions (
-    id TEXT PRIMARY KEY,              -- HyperYOLO UUID
+    id TEXT PRIMARY KEY,              -- hyperyolo UUID
     backend TEXT NOT NULL,            -- 'codex', 'claude', 'gemini'
     backend_session_id TEXT,          -- Backend's native session ID
     model TEXT,
@@ -253,7 +253,7 @@ For TypeScript/Ink alternative implementation, `ink-gradient` and `ink-big-text`
 | **Session format changes** | Medium | Abstract session handling behind adapter interface |
 | **CLI deprecation** | Medium | Plugin architecture allows community-maintained adapters |
 | **Auth complexity** | Low | Delegate auth entirely to underlying CLIs |
-| **Rate limiting** | Low | Pass through to underlying CLIs, optional HyperYOLO warnings |
+| **Rate limiting** | Low | Pass through to underlying CLIs, optional hyperyolo warnings |
 
 **Critical findings from target CLI research**:
 
@@ -276,4 +276,4 @@ All three are under active development with weekly releases—expect breaking ch
 
 The **go-cmd library** (`github.com/go-cmd/cmd`) is recommended over raw `os/exec` for thread-safe real-time stdout/stderr streaming without race conditions.
 
-This architecture balances the "correctness and aesthetics over performance" constraint with practical maintainability for a single developer. The plugin system learned from OpenCode's demise ensures HyperYOLO can survive individual backend changes without becoming a maintenance burden.
+This architecture balances the "correctness and aesthetics over performance" constraint with practical maintainability for a single developer. The plugin system learned from OpenCode's demise ensures hyperyolo can survive individual backend changes without becoming a maintenance burden.

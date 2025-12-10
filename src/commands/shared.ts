@@ -15,7 +15,7 @@ export interface CommandOptions {
 }
 
 /**
- * Generate a HyperYOLO session ID.
+ * Generate a hyperyolo session ID.
  * Format: hyper_<8 hex chars>
  */
 function generateHyperYoloId(): string {

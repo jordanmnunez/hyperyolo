@@ -12,7 +12,7 @@ This folder standardizes how we capture and compare Codex, Claude Code, and Gemi
 2. Copy the section headers from an existing CLI doc and fill in the required fields (version, install/auth, commands/flags, session handling, output formats, YOLO/permissions, regexes, known issues).
 3. Capture commands you executed and note whether they ran in TTY or headless mode.
 4. If streamed output changed, update or extend the matching schema under `schemas/` and link it from the CLI doc.
-5. Call out anything that could affect HyperYOLO adapters (breaking changes, flag renames, resume behavior).
+5. Call out anything that could affect hyperyolo adapters (breaking changes, flag renames, resume behavior).
 
 ## Tips for consistency
 - Prefer `--output-format` values that expose session identifiers.

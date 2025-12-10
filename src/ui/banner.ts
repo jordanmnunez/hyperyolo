@@ -37,7 +37,7 @@ function generateAsciiArt(text: string): string {
 }
 
 /**
- * Render the full HyperYOLO banner with ASCII art
+ * Render the full hyperyolo banner with ASCII art
  */
 export function renderBanner(options: BannerOptions): string {
   const { backend, version, resumeId, colorEnabled } = options;

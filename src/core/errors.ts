@@ -144,7 +144,7 @@ export function formatUserFacingError(error: HyperYoloError): UserFacingError {
         code: error.code,
         severity,
         headline: `${labelForBinary(error)} CLI not found on PATH`,
-        detail: 'HyperYOLO could not locate the requested backend binary.',
+        detail: 'hyperyolo could not locate the requested backend binary.',
         recovery: 'Install the CLI and ensure it is on PATH, then retry.'
       };
     case 'CLI_NOT_EXECUTABLE':
@@ -217,7 +217,7 @@ export function formatUserFacingError(error: HyperYoloError): UserFacingError {
         severity,
         headline: `Session ${error.meta?.sessionId ?? 'ID'} has expired`,
         detail: 'The backend rejected the session because it is no longer active.',
-        recovery: 'Start a fresh run; HyperYOLO will keep the stale mapping for inspection.'
+        recovery: 'Start a fresh run; hyperyolo will keep the stale mapping for inspection.'
       };
     case 'SESSION_CORRUPTED':
       return {
@@ -345,7 +345,7 @@ export function formatUserFacingError(error: HyperYoloError): UserFacingError {
         code: error.code,
         severity,
         headline: 'Config directory is not writable',
-        detail: 'HyperYOLO cannot write to the configuration directory.',
+        detail: 'hyperyolo cannot write to the configuration directory.',
         recovery: 'Adjust permissions or set XDG_CONFIG_HOME to a writable path.'
       };
     case 'FS_SESSION_FILE_CORRUPTED':
@@ -355,7 +355,7 @@ export function formatUserFacingError(error: HyperYoloError): UserFacingError {
         severity,
         headline: 'Session store is corrupted',
         detail: 'The session file could not be read or parsed.',
-        recovery: 'Back up and delete the session file; HyperYOLO will recreate it on the next run.'
+        recovery: 'Back up and delete the session file; hyperyolo will recreate it on the next run.'
       };
     case 'FS_DISK_FULL':
       return {

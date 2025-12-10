@@ -85,7 +85,7 @@ export class SessionStore {
       release = await lockfile.lock(this.filePath, this.lockOptions);
     } catch (error) {
       throw new SessionStoreLockError(
-        'Unable to acquire session store lock; another HyperYOLO process may be running.',
+        'Unable to acquire session store lock; another hyperyolo process may be running.',
         error as Error
       );
     }

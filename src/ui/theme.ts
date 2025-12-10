@@ -68,7 +68,7 @@ export const dim = (text: string): string => colors.dim(text);
 export const bold = (text: string): string => colors.bold(text);
 
 /**
- * HyperYOLO gradient definition - maximalist aesthetic
+ * hyperyolo gradient definition - maximalist aesthetic
  * Uses vibrant colors: cyan -> magenta -> yellow
  */
 const hyperGradient = gradientString(['#00ffff', '#ff00ff', '#ffff00']);

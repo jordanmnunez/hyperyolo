@@ -1,6 +1,6 @@
 # Integration Testing Strategy
 
-How HyperYOLO will validate end-to-end behavior across adapters, the executor, and real backend CLIs.
+How hyperyolo will validate end-to-end behavior across adapters, the executor, and real backend CLIs.
 
 ## Objectives
 - Prove adapter argument building and parsing without hitting live CLIs.

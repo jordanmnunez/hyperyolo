@@ -1,6 +1,6 @@
 /**
  * UI Components Index
- * Exports all UI modules for HyperYOLO CLI
+ * Exports all UI modules for hyperyolo CLI
  */
 
 // Theme module

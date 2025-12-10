@@ -1,6 +1,6 @@
 # execa Streaming and Tee Patterns
 
-Research on how to stream subprocess output with [`execa`](https://github.com/sindresorhus/execa) while keeping HyperYOLO’s UI responsive and parsers reliable.
+Research on how to stream subprocess output with [`execa`](https://github.com/sindresorhus/execa) while keeping hyperyolo’s UI responsive and parsers reliable.
 
 ---
 
@@ -8,7 +8,7 @@ Research on how to stream subprocess output with [`execa`](https://github.com/si
 
 - Deliver minimal-latency streaming to the terminal while feeding a sanitized copy to parsers (session ID, stats).
 - Preserve chunk order across branches (stdout/stderr) without introducing buffering lag.
-- Handle timeouts, signals, and shutdown cleanly so hung CLIs do not stall HyperYOLO.
+- Handle timeouts, signals, and shutdown cleanly so hung CLIs do not stall hyperyolo.
 
 ## execa streaming notes (v9.x)
 
@@ -17,7 +17,7 @@ Research on how to stream subprocess output with [`execa`](https://github.com/si
 - `all: true` exposes a combined stream that preserves stdout/stderr ordering; keep individual streams when styling stderr separately.
 - `reject: false` prevents throws on non-zero exit codes when callers want to inspect exit code manually.
 - `forceKillAfterDelay` defaults to 5000ms; set to `false` when implementing your own SIGTERM→SIGKILL ladder (as in `executor.ts`).
-- `cleanup: true` (default) tears down children on parent exit; keep it on so zombies do not linger if HyperYOLO crashes.
+- `cleanup: true` (default) tears down children on parent exit; keep it on so zombies do not linger if hyperyolo crashes.
 - `signal` accepts `AbortSignal` for cancellation; combine with timers for timeouts.
 
 ## Tee pattern for display + parsing
@@ -156,7 +156,7 @@ async function runWithSignals() {
 
 - `child_process.spawn`: lowest overhead, maximal control. Use when you need custom stdio wiring (e.g., Unix domain sockets, pseudo-TTY) or want zero buffering logic; loses execa conveniences (promises, cleanup, env merging).
 - `node:child_process.spawn` + `foreground-child` (npm): helpful if you need robust signal forwarding in CLIs that daemonize.
-- `zx` is ergonomically nice for scripting but hides streaming details; not recommended for HyperYOLO’s executor.
+- `zx` is ergonomically nice for scripting but hides streaming details; not recommended for hyperyolo’s executor.
 
 ## Gotchas and edge cases
 
@@ -167,7 +167,7 @@ async function runWithSignals() {
 - Exit codes: execa throws on non-zero exit unless `reject: false`; callers must handle `result.exitCode`.
 - Windows: `SIGTERM` is emulated; expect less graceful shutdown. Prefer timeouts + `child.kill('SIGKILL')` fallback on Unix.
 
-## Recommended approach for HyperYOLO
+## Recommended approach for hyperyolo
 
 - Keep `stdout`/`stderr` piped with `buffer: false`, `reject: false`, and `forceKillAfterDelay: false` (handled in `executor.ts`).
 - Use a single tee handler per stream: write raw chunks to the display branch (respecting backpressure), and feed a sanitized copy (ANSI stripped, `\r` normalized) to adapter parsers.

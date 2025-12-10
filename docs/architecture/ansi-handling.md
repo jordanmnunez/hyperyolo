@@ -1,6 +1,6 @@
 # ANSI Output Handling and Dual-Stream Parsing
 
-Strategy for keeping HyperYOLO’s maximalist styling while making parsing robust against ANSI escape codes, cursor moves, and terminal quirks.
+Strategy for keeping hyperyolo’s maximalist styling while making parsing robust against ANSI escape codes, cursor moves, and terminal quirks.
 
 ## Goals
 - Preserve colored/gradient output for users who want it while degrading cleanly for `NO_COLOR`, non-TTY, and low-capability terminals.

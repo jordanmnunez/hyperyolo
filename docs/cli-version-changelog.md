@@ -1,12 +1,12 @@
 # CLI Version Impact Log
 
-Track CLI releases that affect HyperYOLO behavior or supportability. Add a dated entry when the compatibility matrix changes or when a release introduces/removes flags, output formats, or session semantics.
+Track CLI releases that affect hyperyolo behavior or supportability. Add a dated entry when the compatibility matrix changes or when a release introduces/removes flags, output formats, or session semantics.
 
 ## 2025-12-10 — Baseline lock
 
 - **Codex 0.66.0**
   - Output: `codex-cli 0.66.0`; JSON streaming available via `--json`.
-  - Resume accepts invalid ids and silently starts a new session; HyperYOLO must validate ids before calling resume.
+  - Resume accepts invalid ids and silently starts a new session; hyperyolo must validate ids before calling resume.
   - Outside git, requires `--skip-git-repo-check`; without it the CLI exits before starting a session.
 - **Claude Code 2.0.62**
   - Output: `2.0.62 (Claude Code)`.

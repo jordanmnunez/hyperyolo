@@ -1,6 +1,6 @@
 # Terminal Capability Detection Strategy
 
-Research on how HyperYOLO should detect terminal capabilities and degrade visuals without breaking streaming output or readability.
+Research on how hyperyolo should detect terminal capabilities and degrade visuals without breaking streaming output or readability.
 
 ---
 

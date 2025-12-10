@@ -1,6 +1,6 @@
 # Process Signal Handling and Graceful Shutdown
 
-Design for how HyperYOLO forwards terminal signals to backend CLIs, keeps session data safe, and exits cleanly without leaving zombie processes behind.
+Design for how hyperyolo forwards terminal signals to backend CLIs, keeps session data safe, and exits cleanly without leaving zombie processes behind.
 
 ## Goals
 - Mirror the terminal’s intent: forward user-initiated signals (Ctrl+C/SIGINT, SIGTERM) to the child first, wait briefly, then hard-kill only if required.
@@ -58,7 +58,7 @@ Design for how HyperYOLO forwards terminal signals to backend CLIs, keeps sessio
 ## Platform notes (macOS, Linux)
 - Ctrl+C from a TTY sends SIGINT to the entire foreground process group on both macOS and Linux. Manual forwarding remains necessary for non-interactive contexts (pipelines, spawned runs).
 - SIGWINCH fires only when attached to a TTY; do not rely on it in CI/non-TTY runs.
-- Exit codes follow POSIX convention (128 + signal) when HyperYOLO initiates termination; if the child exits first with its own code, prefer the child’s exit code.
+- Exit codes follow POSIX convention (128 + signal) when hyperyolo initiates termination; if the child exits first with its own code, prefer the child’s exit code.
 - Windows is out of scope for v1; if added later, the signal matrix and forwarding rules need a dedicated review.
 
 ## Executor requirements

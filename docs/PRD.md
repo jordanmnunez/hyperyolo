@@ -1,4 +1,4 @@
-# HyperYOLO: Product Requirements Document
+# hyperyolo: Product Requirements Document
 
 > A unified CLI wrapper for autonomous AI code execution across Codex, Claude Code, and Gemini CLI.
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-HyperYOLO normalizes three AI coding CLIs into a single interface optimized for maximum autonomous execution. It wraps the official CLI tools as subprocesses rather than reimplementing their functionality via APIs.
+hyperyolo normalizes three AI coding CLIs into a single interface optimized for maximum autonomous execution. It wraps the official CLI tools as subprocesses rather than reimplementing their functionality via APIs.
 
 ### What It Is
 
@@ -42,7 +42,7 @@ hyperyolo claude "continue" --resume hyper_abc123
 - Must implement tool execution, file editing, sandboxing from scratch
 - Can switch models easily (just swap endpoints)
 
-**CLI Wrappers** (HyperYOLO):
+**CLI Wrappers** (hyperyolo):
 - Run official CLIs as subprocesses
 - Preserve all CLI-native features (sandboxing, MCP, context compaction)
 - Normalize the interface and parse output
@@ -58,12 +58,12 @@ hyperyolo claude "continue" --resume hyper_abc123
 | MCP support | Implement yourself | Native integration |
 | Auth/billing | Requires API keys | Uses existing CLI auth |
 
-HyperYOLO preserves all of this by delegating to the real CLIs.
+hyperyolo preserves all of this by delegating to the real CLIs.
 
 ### Existing Tools
 
 - **[Crush](https://github.com/charmbracelet/crush)** — Charm team's multi-provider agent. Uses APIs directly. Successor to OpenCode.
-- **[CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI)** — Exposes CLIs as OpenAI-compatible APIs (reverse of HyperYOLO).
+- **[CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI)** — Exposes CLIs as OpenAI-compatible APIs (reverse of hyperyolo).
 - **[ai-code-interface.el](https://github.com/tninja/ai-code-interface.el)** — Emacs-specific unified interface.
 
 None of these are CLI wrappers that preserve native CLI functionality.
@@ -88,7 +88,7 @@ hyperyolo <backend> "<prompt>" [--resume <id>]
 
 ### 2. Maximum Autonomy by Default
 
-HyperYOLO always applies maximum settings:
+hyperyolo always applies maximum settings:
 
 | Backend | YOLO Flag | Model | Other |
 |---------|-----------|-------|-------|
@@ -116,7 +116,7 @@ hyperyolo claude "analyze the codebase"
 hyperyolo claude "now fix the issues" --resume hyper_abc123
 ```
 
-HyperYOLO maintains a session registry mapping its IDs to native CLI session IDs.
+hyperyolo maintains a session registry mapping its IDs to native CLI session IDs.
 
 ### 4. Real-Time Streaming Output
 
@@ -184,7 +184,7 @@ User: hyperyolo claude "fix the bug" --resume hyper_abc123
                 │
                 ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    HyperYOLO CLI                            │
+│                    hyperyolo CLI                            │
 │  - Parse args (backend, prompt, --resume)                   │
 │  - Look up session mapping if resuming                      │
 │  - Select backend adapter                                   │
@@ -267,13 +267,13 @@ interface ExecutionStats {
 ```
 
 Adapter requirements for ANSI/parsing:
-- HyperYOLO strips ANSI codes and normalizes carriage returns before calling `parseSessionId`/`parseStats`; adapters must not depend on color codes or cursor positioning for parsing.
+- hyperyolo strips ANSI codes and normalizes carriage returns before calling `parseSessionId`/`parseStats`; adapters must not depend on color codes or cursor positioning for parsing.
 - `buildCommand` should request parse-friendly output modes (Claude/Gemini `stream-json`, Codex `--json`) to minimize ANSI noise; fall back to colored text only when parsing is explicitly disabled.
 - Parser hooks may be stateful/incremental, but should not perform additional ANSI stripping; the executor preserves a raw stream for UI while providing sanitized slices to adapters.
 
 ### CLI Argument Translation
 
-| HyperYOLO | Codex | Claude | Gemini |
+| hyperyolo | Codex | Claude | Gemini |
 |-----------|-------|--------|--------|
 | `"prompt"` | `exec "prompt"` | `-p "prompt"` | `-p "prompt"` |
 | `--resume ID` | `resume <nativeId>` (after prompt) | `--resume <nativeId>` (before -p) | `-r <nativeId>` |
@@ -288,7 +288,7 @@ Each CLI outputs session IDs differently:
 - **Claude**: `{"session_id": "..."}` in stream-json init event
 - **Gemini**: `{"type":"init","session_id":"..."}` in stream-json
 
-HyperYOLO generates its own ID (`hyper_<8hex>`) and maps to the native ID.
+hyperyolo generates its own ID (`hyper_<8hex>`) and maps to the native ID.
 
 ---
 
@@ -357,7 +357,7 @@ Trade-offs accepted:
 
 ### Session Lifecycle and Cleanup
 
-- **Retention**: Keep HyperYOLO session records for 30 days by default (configurable). Stale records generate warnings but are not deleted automatically during a run.
+- **Retention**: Keep hyperyolo session records for 30 days by default (configurable). Stale records generate warnings but are not deleted automatically during a run.
 - **Cleanup**: Provide `hyperyolo sessions clean --older-than 30d [--invalid-only] [--max-records 200]` to prune stale/invalid entries. Offer an opt-in config to auto-prune on startup; default is manual.
 - **Validation on resume**: Warn when resuming stale records; if the native CLI rejects a session, mark it `invalid` for later cleanup while still preserving the record for inspection.
 - **Guardrails**: Warn when the session store exceeds 5 MB or 500 records; future hard cap (e.g., 20 MB) requires an explicit override.
@@ -498,31 +498,31 @@ steps:
 - **Codex CLI**
   - Tool authorization: no `--yolo`; full auto requires `--dangerously-bypass-approvals-and-sandbox`, which also disables sandboxing. Workaround: use Codex directly with `--full-auto --sandbox read-only` if you need guardrails.
   - Environment guard: exits outside a git repo unless `--skip-git-repo-check` is set. Run inside a repo or add the flag when launching from temp directories.
-  - Session resume: invalid IDs silently start a brand-new session. HyperYOLO must validate IDs before resuming; if validation fails, start a fresh run.
-  - Output format: structured stats only appear with `--json`; text mode is noisy but still emits `session id: ...`. HyperYOLO will request JSON; if parsing fails, resume/stats are skipped for that run.
+  - Session resume: invalid IDs silently start a brand-new session. hyperyolo must validate IDs before resuming; if validation fails, start a fresh run.
+  - Output format: structured stats only appear with `--json`; text mode is noisy but still emits `session id: ...`. hyperyolo will request JSON; if parsing fails, resume/stats are skipped for that run.
   - Model availability: ChatGPT accounts reject `gpt-4.1-codex`; stick to `gpt-5.1-codex-max` with fallback to `gpt-5.1-codex`.
 
 - **Claude Code CLI**
-  - Output format: `--output-format stream-json` requires `--verbose` or the CLI exits 1. HyperYOLO always pairs them.
+  - Output format: `--output-format stream-json` requires `--verbose` or the CLI exits 1. hyperyolo always pairs them.
   - Tool authorization: headless `--print` denies Write/Bash without `--dangerously-skip-permissions`; use that flag for unattended runs or run interactively when you want approvals.
   - Session IDs: text output does not include `session_id`; JSON/stream modes are required for resume/stats.
-  - Resume handling: invalid `--resume` values error out; stale HyperYOLO IDs will fail fast. Start a new session if the underlying session file was pruned.
+  - Resume handling: invalid `--resume` values error out; stale hyperyolo IDs will fail fast. Start a new session if the underlying session file was pruned.
   - Model availability: default alias `sonnet` maps to `claude-3-7-sonnet-latest`; alternate models can be rejected. Fall back to `sonnet` when validation fails.
 
 - **Gemini CLI**
   - Tool authorization: in headless mode shell/edit/write tools are removed unless `-y/--approval-mode yolo` is set; otherwise `tool_not_registered` errors appear. Use `-y` for automation.
   - Sandbox: `-y` does not enable sandboxing; destructive commands run on host unless `--sandbox`/`GEMINI_SANDBOX` is set.
-  - Session IDs/output: default text output lacks session IDs; use `-o stream-json`/`json` for resume/stats. HyperYOLO relies on stream JSON.
+  - Session IDs/output: default text output lacks session IDs; use `-o stream-json`/`json` for resume/stats. hyperyolo relies on stream JSON.
   - Error surfaces: invalid API keys return `[object Object]` with exit code 144 and drop temp error files under `/var/folders/.../T`.
   - Model availability: `-m auto` resolves to `gemini-2.5-pro` with an internal fallback to `gemini-2.5-flash`; preview models depend on account capabilities.
 
-### HyperYOLO Wrapper
+### hyperyolo Wrapper
 
 - Does not expose provider-specific surfaces (`mcp`, `plugin/extension` management, approval/sandbox/model tuning flags, allowed-tools lists); use the native CLIs for those workflows.
 - macOS/Linux only; requires Node 18+ (Gemini CLI needs Node 20+). Windows is unsupported.
-- Session store is a single-user JSON file; concurrent runs rely on advisory locks and are not multi-machine safe. Resume will fail if the native CLI has pruned its session file even when HyperYOLO still has a mapping.
+- Session store is a single-user JSON file; concurrent runs rely on advisory locks and are not multi-machine safe. Resume will fail if the native CLI has pruned its session file even when hyperyolo still has a mapping.
 - Session retention defaults to 30 days; stale IDs are not auto-deleted and may fail to resume. Start a fresh session or prune via `hyperyolo sessions clean`.
-- If CLI output formats change or ANSI/TTY quirks block parsing, HyperYOLO falls back to streaming without stats/resume for that run; use the native CLI directly when parsing-sensitive features break.
+- If CLI output formats change or ANSI/TTY quirks block parsing, hyperyolo falls back to streaming without stats/resume for that run; use the native CLI directly when parsing-sensitive features break.
 
 ---
 
@@ -533,7 +533,7 @@ steps:
 | CLI breaking changes | High | Version documentation, adapter isolation, integration tests |
 | CLI not outputting session ID | Medium | Fallback to generating our own, skip resume for that session |
 | TTY detection issues | Low | All CLIs have proper headless modes |
-| User confusion (thinks HyperYOLO is the AI) | Low | Clear messaging that it wraps existing CLIs |
+| User confusion (thinks hyperyolo is the AI) | Low | Clear messaging that it wraps existing CLIs |
 | Native CLI not installed | Low | Detect and show helpful error message |
 
 ---

@@ -1,6 +1,6 @@
 # Pre-Implementation Plan and Readiness
 
-This document locks in the research outputs and decisions needed before writing code for HyperYOLO. It summarizes verified CLI behaviors, architectural choices, and the version baselines we will target. Use it as the starting checklist for implementation.
+This document locks in the research outputs and decisions needed before writing code for hyperyolo. It summarizes verified CLI behaviors, architectural choices, and the version baselines we will target. Use it as the starting checklist for implementation.
 
 ## Readiness Checklist
 
@@ -18,7 +18,7 @@ This document locks in the research outputs and decisions needed before writing 
 - **Subprocess execution**: `execa` in streaming mode. Tee stdout/stderr to (a) terminal passthrough and (b) parser pipeline. Honor backpressure by writing chunks directly to `process.stdout`/`stderr` without buffering beyond parser needs.
 - **Timeouts**: Default absolute timeout 30m per run (configurable flag); idle timeout 5m of no output triggers a graceful kill. Strategy: send SIGTERM, wait 5s, then SIGKILL; surface a clear timeout error with partial session info.
 - **Signal handling**: Forward SIGINT/SIGTERM to child; stop accepting new output, flush session mapping, then exit with the child’s code (or 130 for Ctrl+C). Document that SIGKILL cannot be trapped.
-- **Session storage**: JSON at `~/.config/hyperyolo/sessions.json` (per PRD). Use a lockfile (e.g., `proper-lockfile`) plus atomic temp-write-and-rename to avoid corruption when multiple HyperYOLO instances run. Chosen to avoid native deps for the small MVP dataset; migrate to SQLite only if we later need filtered queries over large record sets (`docs/architecture/session-storage.md`).
+- **Session storage**: JSON at `~/.config/hyperyolo/sessions.json` (per PRD). Use a lockfile (e.g., `proper-lockfile`) plus atomic temp-write-and-rename to avoid corruption when multiple hyperyolo instances run. Chosen to avoid native deps for the small MVP dataset; migrate to SQLite only if we later need filtered queries over large record sets (`docs/architecture/session-storage.md`).
 - **Session cleanup/expiration**: Keep sessions for 30 days by default; add a manual `sessions clean --older-than <duration>` command later. Do not auto-delete within a run; warn when the store exceeds a size threshold (e.g., >5 MB).
 - **Adapter contract**: Keep `BackendAdapter` as defined in `docs/PRD.md` with `isAvailable`, `buildArgs`, `parseSessionId`, `parseStats`. All adapters must expose their version detection command and default model.
 - **Output format selection**:

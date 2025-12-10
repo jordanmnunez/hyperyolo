@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * HyperYOLO CLI Entry Point
+ * hyperyolo CLI Entry Point
  *
  * A unified CLI wrapper for autonomous AI code execution across
  * Codex, Claude Code, and Gemini CLI.

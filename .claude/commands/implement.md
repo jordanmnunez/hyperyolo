@@ -1,6 +1,6 @@
-# HyperYOLO Implementation Session
+# hyperyolo Implementation Session
 
-You are implementing the HyperYOLO CLI wrapper. Work through tasks systematically using test-driven development (TDD).
+You are implementing the hyperyolo CLI wrapper. Work through tasks systematically using test-driven development (TDD).
 
 ## Workflow
 

@@ -1,6 +1,6 @@
 # Session Lifecycle, Expiration, and Cleanup
 
-Design notes for how HyperYOLO tracks, validates, and eventually removes session metadata that maps `hyper_*` IDs to native CLI session IDs.
+Design notes for how hyperyolo tracks, validates, and eventually removes session metadata that maps `hyper_*` IDs to native CLI session IDs.
 
 ## Storage backend
 - Persistent store is a JSON file at `~/.config/hyperyolo/sessions.json`, guarded by a lockfile and atomic temp-write-then-rename on mutation (see `docs/architecture/session-storage.md`).
@@ -8,12 +8,12 @@ Design notes for how HyperYOLO tracks, validates, and eventually removes session
 
 ## Lifecycle
 - **Create**: On every run, generate `hyper_<8hex>`, persist `{ backend, nativeId, createdAt, lastSeenAt, lastPrompt }` once the native session ID is parsed. Writes use the session store’s lock/atomic write rules.
-- **Resume**: Look up the mapping by HyperYOLO ID, surface a warning if the record is stale (see retention), and pass the native ID to the adapter. Update `lastSeenAt` and `lastPrompt` when the run ends, even if the native CLI rejected the resume.
+- **Resume**: Look up the mapping by hyperyolo ID, surface a warning if the record is stale (see retention), and pass the native ID to the adapter. Update `lastSeenAt` and `lastPrompt` when the run ends, even if the native CLI rejected the resume.
 - **Invalidation**: If the native CLI reports an unknown/expired session, mark the record as `invalid: true` and keep it until the next cleanup pass so the user can inspect it. On successful resumes, clear `invalid`.
 
 ## Lifespan and retention assumptions
-- Native CLIs do not document retention guarantees; HyperYOLO therefore treats native session validity as best-effort and does not block resuming based on age alone.
-- HyperYOLO retention is configurable, defaulting to **30 days** (aligned with the pre-implementation plan). Records older than the retention window are considered **stale**.
+- Native CLIs do not document retention guarantees; hyperyolo therefore treats native session validity as best-effort and does not block resuming based on age alone.
+- hyperyolo retention is configurable, defaulting to **30 days** (aligned with the pre-implementation plan). Records older than the retention window are considered **stale**.
 - Stale handling: log a warning when using a stale record; if the resume fails, mark the record invalid and recommend cleanup. Successful stale resumes refresh `lastSeenAt` and move the record back inside the window.
 
 ## Cleanup strategy
@@ -33,7 +33,7 @@ Design notes for how HyperYOLO tracks, validates, and eventually removes session
 - Count guardrails: warn above 500 records; cleanup command supports `--max-records` to keep the newest N while dropping older ones.
 
 ## User-facing session commands (future)
-- `hyperyolo sessions list` — Show HyperYOLO IDs, backend, age, `invalid`/stale flags, and last prompt snippet.
+- `hyperyolo sessions list` — Show hyperyolo IDs, backend, age, `invalid`/stale flags, and last prompt snippet.
 - `hyperyolo sessions show <id>` — Detailed record view including native ID, timestamps, and last resume status.
 - `hyperyolo sessions clean [--older-than 30d] [--invalid-only] [--max-records 200]` — Prune stale/invalid records while keeping the newest ones.
 - `hyperyolo sessions delete <id>` — Delete a single record (no impact on native CLI storage).

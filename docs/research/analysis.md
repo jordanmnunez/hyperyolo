@@ -1,10 +1,10 @@
-# HyperYOLO Research Analysis: Claude vs Gemini vs ChatGPT
+# hyperyolo Research Analysis: Claude vs Gemini vs ChatGPT
 
-A comparative analysis of three AI research outputs for the HyperYOLO project.
+A comparative analysis of three AI research outputs for the hyperyolo project.
 
 ---
 
-## Why HyperYOLO? (Prior Art Analysis)
+## Why hyperyolo? (Prior Art Analysis)
 
 ### Two Approaches to Multi-Model AI CLIs
 
@@ -35,12 +35,12 @@ The official CLIs (Claude Code, Codex, Gemini CLI) include features that API-bas
 ### Existing Tools
 
 - **[Crush](https://github.com/charmbracelet/crush)** — Charm team's multi-provider AI agent. Uses APIs directly, not a CLI wrapper. Successor to OpenCode.
-- **[CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI)** — Exposes CLI tools as OpenAI-compatible APIs (reverse direction from HyperYOLO).
+- **[CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI)** — Exposes CLI tools as OpenAI-compatible APIs (reverse direction from hyperyolo).
 - **[ai-code-interface.el](https://github.com/tninja/ai-code-interface.el)** — Emacs-specific unified interface for multiple AI CLIs.
 
-### Where HyperYOLO Fits
+### Where hyperyolo Fits
 
-HyperYOLO is a **CLI wrapper**, not an API client. It:
+hyperyolo is a **CLI wrapper**, not an API client. It:
 - Runs the official CLIs as subprocesses
 - Normalizes the interface (unified `--resume`, consistent YOLO flags)
 - Parses output for session IDs and stats
@@ -84,7 +84,7 @@ All agree on the core technical challenge: **display output in real-time while s
 - **ChatGPT**: Node streams with async event handlers
 
 ### 3. Session ID Mapping
-All propose a **HyperYOLO-managed session registry** that maps unified IDs to backend-native IDs:
+All propose a **hyperyolo-managed session registry** that maps unified IDs to backend-native IDs:
 
 - **Claude**: SQLite with `{id, backend, backend_session_id, ...}`
 - **Gemini**: Sled KV store with `session:{uuid}:meta` keys
@@ -190,7 +190,7 @@ All explicitly defer the same features:
 |---------|------------------|
 | **Claude** | CLI breaking changes, session format changes, OpenCode's archival as cautionary tale |
 | **Gemini** | TTY detection, defensive design bypassing, GC pauses disrupting animations |
-| **ChatGPT** | Dependency on underlying CLIs, terminal compatibility, user misunderstanding (thinking HyperYOLO IS the AI) |
+| **ChatGPT** | Dependency on underlying CLIs, terminal compatibility, user misunderstanding (thinking hyperyolo IS the AI) |
 
 ---
 
@@ -286,4 +286,4 @@ Based on the analysis, here's a synthesized recommendation:
 
 ---
 
-*Analysis generated from three independent AI research outputs on the HyperYOLO project specification.*
+*Analysis generated from three independent AI research outputs on the hyperyolo project specification.*

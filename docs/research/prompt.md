@@ -1,14 +1,14 @@
-# HyperYOLO: Deep Research & Planning Prompt
+# hyperyolo: Deep Research & Planning Prompt
 
 ## Mission
 
-Design and plan **HyperYOLO** — a CLI wrapper that unifies Codex, Claude Code, and Gemini CLI into a single, normalized interface for maximum autonomous AI execution. The goal is to create a tool that is both technically excellent and aesthetically obnoxious in the best possible way.
+Design and plan **hyperyolo** — a CLI wrapper that unifies Codex, Claude Code, and Gemini CLI into a single, normalized interface for maximum autonomous AI execution. The goal is to create a tool that is both technically excellent and aesthetically obnoxious in the best possible way.
 
 ---
 
 ## What We're Building
 
-HyperYOLO is a meta-CLI that:
+hyperyolo is a meta-CLI that:
 
 1. **Normalizes three AI CLIs** (Codex, Claude Code, Gemini) into one consistent interface
 2. **Always runs at maximum power** — highest model tier, highest reasoning effort, no safety guardrails, full autonomous execution
@@ -123,7 +123,7 @@ gemini -y "follow-up" -r <session-id>
 
 ---
 
-## Desired HyperYOLO Interface
+## Desired hyperyolo Interface
 
 ### Basic Usage
 
@@ -154,7 +154,7 @@ hyperyolo claude "what did you change?" --resume <session-id>
 
 ### Output Normalization
 
-HyperYOLO should normalize output to provide:
+hyperyolo should normalize output to provide:
 - Clear indication of which backend is running
 - Consistent session ID format (for use with `--resume`)
 - Pass-through of the actual CLI output
@@ -199,7 +199,7 @@ hyperyolo interactive
 
 ## Brand & Aesthetic Direction
 
-**HyperYOLO is obnoxious maximalist.** Think hyperpop but for developer tools.
+**hyperyolo is obnoxious maximalist.** Think hyperpop but for developer tools.
 
 ### Vibe References
 - **Hyperpop music** — 100 gecs, SOPHIE, Charli XCX — overwhelming, glitchy, unapologetic excess
@@ -259,7 +259,7 @@ hyperyolo interactive
 The plan should answer:
 
 ### Language & Framework
-1. **What language should HyperYOLO be written in?**
+1. **What language should hyperyolo be written in?**
    - Consider: TypeScript/Node, Rust, Go, Python
    - Weigh: ecosystem (npm for CLI tools), performance, developer experience, terminal UI libraries
 
@@ -279,7 +279,7 @@ The plan should answer:
 
 5. **How should we handle session ID mapping?**
    - Store our own session registry?
-   - Map HyperYOLO IDs to underlying CLI session IDs?
+   - Map hyperyolo IDs to underlying CLI session IDs?
    - Format: `hyper_<short-id>` → `{backend: "claude", native_id: "abc123..."}`
 
 6. **How should we stream output while also parsing it?**
@@ -313,7 +313,7 @@ The plan should answer:
 
 - **Non-interactive first** — the MVP is fire-and-forget batch execution
 - **Works on macOS and Linux** — Windows support is not required initially
-- **Requires underlying CLIs installed** — HyperYOLO doesn't bundle them
+- **Requires underlying CLIs installed** — hyperyolo doesn't bundle them
 - **No performance optimization** — correctness and aesthetics over speed
 - **Single developer initially** — architecture should be understandable by one person
 
@@ -355,7 +355,7 @@ The plan should answer:
 
 ## Context: Why This Exists
 
-HyperYOLO is born from the observation that:
+hyperyolo is born from the observation that:
 
 1. **AI coding CLIs are converging** — Codex, Claude, Gemini all do similar things with different interfaces
 2. **Power users want maximum autonomy** — we trust the AI, skip the confirmations

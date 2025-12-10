@@ -1,6 +1,6 @@
 # Backend Adapter Contract
 
-Canonical interface for mapping HyperYOLO inputs to backend CLIs while keeping streaming, resume, and stats parsing consistent across Codex, Claude Code, and Gemini.
+Canonical interface for mapping hyperyolo inputs to backend CLIs while keeping streaming, resume, and stats parsing consistent across Codex, Claude Code, and Gemini.
 
 ## Interface
 Source of truth lives in `src/adapters/types.ts`.

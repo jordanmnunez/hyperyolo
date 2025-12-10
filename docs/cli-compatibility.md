@@ -1,10 +1,10 @@
 # CLI Version Compatibility
 
-Source of truth for which Codex, Claude Code, and Gemini CLI versions HyperYOLO supports, how versions are detected, and how we react to breaking changes.
+Source of truth for which Codex, Claude Code, and Gemini CLI versions hyperyolo supports, how versions are detected, and how we react to breaking changes.
 
 ## Detection and parsing
 
-HyperYOLO adapters run the native `--version` command and extract the first semantic version they find. The raw output is preserved for debugging.
+hyperyolo adapters run the native `--version` command and extract the first semantic version they find. The raw output is preserved for debugging.
 
 | CLI | Version command | Expected output shape | Parse rule | Notes |
 |-----|-----------------|-----------------------|------------|-------|
@@ -27,7 +27,7 @@ Max tested is not a hard cap—runs continue with a warning when the detected ve
 ## Breaking change notes
 
 - **Codex**
-  - Resume silently creates a new session when the id is invalid; HyperYOLO must validate ids itself.
+  - Resume silently creates a new session when the id is invalid; hyperyolo must validate ids itself.
   - Outside a git repo the CLI exits unless `--skip-git-repo-check` is provided.
   - No `--yolo`; the closest flag (`--dangerously-bypass-approvals-and-sandbox`) changes sandboxing semantics.
 - **Claude Code**

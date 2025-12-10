@@ -1,6 +1,6 @@
 # Error Handling Strategy
 
-How HyperYOLO detects, classifies, and reports failures without blocking streaming output or corrupting session data.
+How hyperyolo detects, classifies, and reports failures without blocking streaming output or corrupting session data.
 
 ## Goals
 - Normalize error surfaces across backends while keeping native CLI output intact.

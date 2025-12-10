@@ -1,10 +1,10 @@
 # Session Storage Decision (JSON with Locking)
 
-This document records the final decision for the HyperYOLO session store and the implementation rules that follow from it.
+This document records the final decision for the hyperyolo session store and the implementation rules that follow from it.
 
 ## Requirements Considered
 - **Single-user CLI** with occasional concurrent runs from multiple terminals.
-- **Data shape** is small: a map of HyperYOLO IDs to native session IDs plus timestamps/prompts.
+- **Data shape** is small: a map of hyperyolo IDs to native session IDs plus timestamps/prompts.
 - **Queries** needed for MVP are trivial (lookup by ID, list all, cleanup); no aggregations.
 - **Reliability** matters more than raw performance; corruption on crash must be avoided.
 - **Distribution** should stay dependency-light (no native modules or external daemons).

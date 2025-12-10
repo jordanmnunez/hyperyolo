@@ -1,5 +1,5 @@
 /**
- * HyperYOLO - Unified CLI wrapper for autonomous AI code execution
+ * hyperyolo - Unified CLI wrapper for autonomous AI code execution
  *
  * @packageDocumentation
  */
