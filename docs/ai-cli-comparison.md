@@ -30,7 +30,7 @@ codex exec --yolo "your prompt"
 |------|---------|
 | `exec <prompt>` | Run a single prompt non-interactively |
 | `--yolo` | Auto-approve all tool calls |
-| `--model <name>` | Select model (default: `gpt-5.1-codex-max`) |
+| `--model <name>` | Select model (default: `gpt-5.1-codex-max`; fallback to `gpt-5.1-codex` if the max tier is unavailable) |
 | `-c key=value` | Config overrides |
 
 ### Example
@@ -59,6 +59,7 @@ claude -p "your prompt" --dangerously-skip-permissions
 | `--permission-mode acceptEdits` | Auto-accept edits only |
 | `--append-system-prompt "..."` | Add system instructions |
 | `--resume <session-id>` | Continue a previous session |
+| `--model <alias|full name>` | Model override; aliases like `opus`, `sonnet`, and `haiku` resolve to the latest tier (default is `sonnet`, which currently points to `claude-3-7-sonnet-latest`) |
 
 ### Output Formats
 
@@ -120,7 +121,7 @@ gemini -p "your prompt" --yolo
 |------|---------|
 | `-p <prompt>` | Non-interactive/headless mode |
 | `-y, --yolo` | Auto-approve all tool calls |
-| `-m, --model <name>` | Select model (e.g., `gemini-2.5-flash`) |
+| `-m, --model <name>` | Select model (default `auto` resolves to `gemini-2.5-pro`, or `gemini-3-pro-preview` when preview features are enabled; aliases include `pro`, `flash`, `flash-lite`) |
 | `--output-format json` | Structured JSON output |
 | `--output-format stream-json` | Streaming newline-delimited JSON |
 | `-s, --sandbox` | Run tools in Docker sandbox |

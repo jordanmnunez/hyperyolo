@@ -37,11 +37,11 @@ This document locks in the research outputs and decisions needed before writing 
 
 ## Version Compatibility Matrix
 
-| CLI | Version command | Min supported (current) | Tested version | Known notes |
-|-----|-----------------|-------------------------|----------------|-------------|
-| Codex | `codex --version` | 0.66.0 | 0.66.0 | No `--yolo`; default text banner; `--json` gives events; `--skip-git-repo-check` required outside a git repo; invalid resume silently creates a new session. |
-| Claude Code | `claude --version` | 2.0.62 | 2.0.62 | `--output-format stream-json` requires `--verbose`; `--dangerously-skip-permissions` needed for headless writes; session IDs are UUIDv4. |
-| Gemini CLI | `gemini --version` | 0.19.3 (Node 20+) | 0.19.3 | `--yolo` does not auto-sandbox; headless without YOLO strips tools; `--resume` accepts UUID/index/latest; invalid API key exits with code 144. |
+| CLI | Version command | Min supported (current) | Tested version | Model defaults/highest tier | Known notes |
+|-----|-----------------|-------------------------|----------------|-----------------------------|-------------|
+| Codex | `codex --version` | 0.66.0 | 0.66.0 | Default `gpt-5.1-codex-max`; if rejected, fall back to `gpt-5.1-codex`. Highest tier observed: `gpt-5.1-codex-max`. | No `--yolo`; default text banner; `--json` gives events; `--skip-git-repo-check` required outside a git repo; invalid resume silently creates a new session. |
+| Claude Code | `claude --version` | 2.0.62 | 2.0.62 | Default alias `sonnet` (maps to the latest Sonnet tier; current install resolves to `claude-3-7-sonnet-latest`); aliases `opus/sonnet/haiku` track the latest tier in each family. Opus requires the appropriate account tier. | `--output-format stream-json` requires `--verbose`; `--dangerously-skip-permissions` needed for headless writes; session IDs are UUIDv4. |
+| Gemini CLI | `gemini --version` | 0.19.3 (Node 20+) | 0.19.3 | Default `auto` resolves to `gemini-2.5-pro` (or `gemini-3-pro-preview` when preview features are enabled); CLI fallback mode downgrades to `gemini-2.5-flash`. | `--yolo` does not auto-sandbox; headless without YOLO strips tools; `--resume` accepts UUID/index/latest; invalid API key exits with code 144. |
 
 Monitoring plan: on startup, adapters parse the version output and warn if below the min supported; allow override with a `--ignore-version-warnings` flag for advanced users.
 

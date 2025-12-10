@@ -92,11 +92,17 @@ HyperYOLO always applies maximum settings:
 
 | Backend | YOLO Flag | Model | Other |
 |---------|-----------|-------|-------|
-| Codex | `--dangerously-bypass-approvals-and-sandbox` | `gpt-5.1-codex-max` | `--skip-git-repo-check` recommended outside git repos |
-| Claude | `--dangerously-skip-permissions` | (default) | `--max-turns` unset |
-| Gemini | `--yolo` or `-y` | (default) | Auto-sandboxed |
+| Codex | `--dangerously-bypass-approvals-and-sandbox` | Default `gpt-5.1-codex-max` (fallback to `gpt-5.1-codex` if the max tier is rejected) | `--skip-git-repo-check` recommended outside git repos |
+| Claude | `--dangerously-skip-permissions` | Use CLI default alias (`sonnet`, currently `claude-3-7-sonnet-latest`; keep user overrides intact) | `--max-turns` unset |
+| Gemini | `--yolo` or `-y` | Default `auto` (resolves to `gemini-2.5-pro`, or `gemini-3-pro-preview` when preview features are enabled) | Request `--sandbox` explicitly; YOLO does not auto-enable sandboxing |
 
 No confirmations, no safety prompts, no iteration limits.
+
+#### Model selection strategy
+- Never override a user-supplied `--model`.
+- Codex: start with `gpt-5.1-codex-max`; if the CLI returns an unsupported-model error, retry with `gpt-5.1-codex` and surface the downgrade in the footer.
+- Claude Code: use the CLI’s default alias (`sonnet` → `claude-3-7-sonnet-latest` as of 2.0.64). If an explicit model fails validation, fall back to `sonnet` and show the error plus the fallback.
+- Gemini CLI: pass `-m auto` so the CLI resolves to `gemini-2.5-pro` (or `gemini-3-pro-preview` when preview features are enabled). Rely on the CLI’s built-in fallback to `gemini-2.5-flash` when it enters fallback mode; surface the active model in the footer.
 
 ### 3. Session Continuity
 
