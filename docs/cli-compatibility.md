@@ -59,3 +59,4 @@ The version check keeps the parsed version, the raw output, and the minimum/test
 
 - `docs/pre-implementation-plan.md` for the original baselines
 - `docs/cli-version-changelog.md` for per-release impact notes
+- `docs/research/cli-verification/README.md` for per-CLI verification templates and schemas

@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://hyperyolo.local/schemas/codex-output.schema.json",
+  "title": "Codex CLI JSON output event",
+  "description": "Schema for newline-delimited events emitted by `codex exec --json`.",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/definitions/threadStarted" },
+    { "$ref": "#/definitions/turnStarted" },
+    { "$ref": "#/definitions/itemStarted" },
+    { "$ref": "#/definitions/itemCompleted" },
+    { "$ref": "#/definitions/turnCompleted" }
+  ],
+  "definitions": {
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "description": "Session/thread identifiers emitted by Codex CLI."
+    },
+    "threadStarted": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "thread.started" },
+        "thread_id": { "$ref": "#/definitions/uuid" }
+      },
+      "required": ["type", "thread_id"],
+      "additionalProperties": true
+    },
+    "turnStarted": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "turn.started" }
+      },
+      "required": ["type"],
+      "additionalProperties": true
+    },
+    "itemStarted": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "item.started" },
+        "item": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "type": { "type": "string" },
+            "text": { "type": "string" }
+          },
+          "required": ["id", "type"],
+          "additionalProperties": true
+        }
+      },
+      "required": ["type", "item"],
+      "additionalProperties": true
+    },
+    "itemCompleted": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "item.completed" },
+        "item": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "type": { "type": "string" },
+            "text": { "type": "string" }
+          },
+          "required": ["id", "type"],
+          "additionalProperties": true
+        }
+      },
+      "required": ["type", "item"],
+      "additionalProperties": true
+    },
+    "turnCompleted": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "turn.completed" },
+        "usage": {
+          "type": "object",
+          "properties": {
+            "input_tokens": { "type": "number" },
+            "cached_input_tokens": { "type": "number" },
+            "output_tokens": { "type": "number" }
+          },
+          "required": ["input_tokens", "output_tokens"],
+          "additionalProperties": true
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": true
+    }
+  }
+}
