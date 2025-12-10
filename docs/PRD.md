@@ -289,6 +289,14 @@ Simple JSON at `~/.config/hyperyolo/sessions.json`:
 
 SQLite considered but unnecessary for MVP. JSON is human-readable and sufficient for single-user session tracking.
 
+### Session Lifecycle and Cleanup
+
+- **Retention**: Keep HyperYOLO session records for 30 days by default (configurable). Stale records generate warnings but are not deleted automatically during a run.
+- **Cleanup**: Provide `hyperyolo sessions clean --older-than 30d [--invalid-only] [--max-records 200]` to prune stale/invalid entries. Offer an opt-in config to auto-prune on startup; default is manual.
+- **Validation on resume**: Warn when resuming stale records; if the native CLI rejects a session, mark it `invalid` for later cleanup while still preserving the record for inspection.
+- **Guardrails**: Warn when the session store exceeds 5 MB or 500 records; future hard cap (e.g., 20 MB) requires an explicit override.
+- **More detail**: `docs/architecture/session-lifecycle.md` captures lifecycle states, cleanup triggers, and the planned session command set.
+
 ---
 
 ## Project Structure
