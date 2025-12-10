@@ -36,6 +36,11 @@ export interface BackendAdapter {
 - **Availability errors**: `isAvailable` must not throw. Detection failures return `{ available: false, error }`; callers surface the message and mark the backend unavailable.
 - **Validation**: `sessionIdPattern` is used to validate parsed IDs and user-supplied resume IDs; adapters should pick the most restrictive regex supported by the CLI.
 
+## Version handling
+- `isAvailable` should run the native `--version` command, capture the raw output, and call `annotateAvailabilityWithVersion` (from `src/adapters/versioning.ts`) to attach `versionStatus` and warnings.
+- Baselines live in `VERSION_BASELINES`; adapters should not hardcode versions elsewhere.
+- When `versionStatus.status === 'unsupported'`, surface a clear warning and allow callers to decide whether to block or continue with an explicit override flag.
+
 ## CLI-specific quirks to encode
 - **Codex**: `resume <id>` comes *after* the prompt (`codex exec "prompt" resume <id>`). Always apply `--yolo` and `--skip-git-repo-check` when present; prefer JSON/stream output when available.
 - **Claude Code**: Resume flag precedes the prompt (`--resume <id> -p "prompt"`). Enforce `--dangerously-skip-permissions` and `--output-format stream-json`; tolerate stderr JSON fragments for session IDs.

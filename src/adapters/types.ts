@@ -22,9 +22,24 @@ export interface ExecutionStats {
   raw?: unknown;
 }
 
+export type VersionStatus = 'ok' | 'warn' | 'unsupported';
+
+export interface VersionCheckResult {
+  backend: BackendName;
+  detectedVersion?: string | null;
+  minimumSupported: string;
+  maximumTested: string;
+  blockedVersions: string[];
+  status: VersionStatus;
+  reasons: string[];
+}
+
 export interface AvailabilityResult {
   available: boolean;
   version?: string;
+  rawVersionOutput?: string;
+  warnings?: string[];
+  versionStatus?: VersionCheckResult;
   /**
    * User-facing error string when availability cannot be determined.
    * When set, available must be false.

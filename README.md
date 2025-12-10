@@ -30,7 +30,8 @@ hyperyolo gemini "fix the bug"
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 18+ (Gemini CLI requires Node 20+)
+- CLI version baselines (HyperYOLO warns when below these): Codex ≥ 0.66.0, Claude Code ≥ 2.0.62, Gemini CLI ≥ 0.19.3. See `docs/cli-compatibility.md` for the full matrix.
 - At least one of the underlying CLIs installed and configured:
   - [Codex CLI](https://github.com/openai/codex)
   - [Claude Code](https://claude.ai/code)
