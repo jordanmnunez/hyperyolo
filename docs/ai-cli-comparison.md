@@ -6,13 +6,13 @@ A comparison of headless/autonomous execution modes across Codex, Claude Code, a
 
 | Feature | Codex | Claude Code | Gemini CLI |
 |---------|-------|-------------|------------|
-| Auto-approve flag | `--yolo` | `--dangerously-skip-permissions` | `--yolo` or `-y` |
+| Auto-approve flag | `--dangerously-bypass-approvals-and-sandbox` | `--dangerously-skip-permissions` | `--yolo` or `-y` |
 | Non-interactive flag | `exec <prompt>` | `-p <prompt>` | `-p <prompt>` |
-| JSON output | Default | `--output-format json` | `--output-format json` |
-| Streaming output | Default | `--output-format stream-json` | `--output-format stream-json` |
+| JSON output | `--json` | `--output-format json` | `--output-format json` |
+| Streaming output | `--json` (line-delimited events) | `--output-format stream-json --verbose` | `--output-format stream-json` |
 | Iteration limit | N/A | `--max-turns N` | N/A |
 | Tool restrictions | N/A | `--allowedTools "..."` | `--allowed-tools "..."` |
-| Sandbox mode | N/A | N/A | `--sandbox` (Docker) |
+| Sandbox mode | `--sandbox` (read-only available) | N/A | `--sandbox` (Docker) |
 
 ---
 
@@ -22,20 +22,24 @@ A comparison of headless/autonomous execution modes across Codex, Claude Code, a
 
 ### Autonomous Execution
 ```bash
-codex exec --yolo "your prompt"
+codex exec --dangerously-bypass-approvals-and-sandbox "your prompt"
 ```
 
 ### Key Flags
 | Flag | Purpose |
 |------|---------|
 | `exec <prompt>` | Run a single prompt non-interactively |
-| `--yolo` | Auto-approve all tool calls |
+| `--dangerously-bypass-approvals-and-sandbox` | Auto-approve all tool calls (note: also disables sandbox) |
+| `--json` | Output JSON events (line-delimited) |
+| `--skip-git-repo-check` | Allow running outside a git repository |
 | `--model <name>` | Select model (default: `gpt-5.1-codex-max`; fallback to `gpt-5.1-codex` if the max tier is unavailable) |
 | `-c key=value` | Config overrides |
 
+**Note:** Codex does not have a `--yolo` flag. Use `--dangerously-bypass-approvals-and-sandbox` for full auto mode. For sandboxed auto-approve, use `--full-auto --sandbox read-only` instead.
+
 ### Example
 ```bash
-codex exec --yolo --model gpt-5.1-codex-max "Complete the task and commit"
+codex exec --dangerously-bypass-approvals-and-sandbox --json --skip-git-repo-check "Complete the task and commit"
 ```
 
 ---
@@ -53,7 +57,8 @@ claude -p "your prompt" --dangerously-skip-permissions
 | `-p, --print <prompt>` | Non-interactive mode, exits after response |
 | `--dangerously-skip-permissions` | Skip all permission prompts (YOLO equivalent) |
 | `--output-format json` | Structured JSON output |
-| `--output-format stream-json` | Streaming newline-delimited JSON |
+| `--output-format stream-json` | Streaming newline-delimited JSON (**requires `--verbose`**) |
+| `--verbose` | Enable verbose output (required for `stream-json`) |
 | `--max-turns N` | Limit agentic iterations |
 | `--allowedTools "Tool1,Tool2"` | Restrict available tools |
 | `--permission-mode acceptEdits` | Auto-accept edits only |
@@ -76,8 +81,9 @@ claude -p "Analyze code" --output-format json
 
 **Streaming JSON:**
 ```bash
-claude -p "Long task" --output-format stream-json
+claude -p "Long task" --output-format stream-json --verbose
 # Returns newline-delimited JSON events
+# Note: --verbose is REQUIRED for stream-json or CLI exits with code 1
 ```
 
 ### Examples

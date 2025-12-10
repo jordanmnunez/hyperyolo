@@ -12,7 +12,7 @@ HyperYOLO is a TypeScript CLI that wraps Codex, Claude Code, and Gemini CLI into
 
 - **Runtime**: Node.js 18+
 - **Language**: TypeScript
-- **CLI Framework**: oclif
+- **CLI Framework**: Commander (MVP); oclif later if plugin support needed
 - **Subprocess**: execa
 - **Terminal UI**: chalk, gradient-string, figlet, boxen, ora
 - **Testing**: Vitest or Bun test
@@ -24,8 +24,10 @@ hyperyolo/
 ├── src/
 │   ├── index.ts                 # Entry point/exports
 │   ├── adapters/                # Adapter contracts
-│   │   └── types.ts             # BackendAdapter interface + ExecutionOptions/Stats
+│   │   ├── types.ts             # BackendAdapter interface + ExecutionOptions/Stats
+│   │   └── versioning.ts        # Version baselines + semver checks
 │   └── core/
+│       ├── errors.ts            # Error taxonomy + user-facing messages
 │       ├── executor.ts          # Subprocess execution + timeouts
 │       ├── session-id.ts        # Regex helpers for ID parsing
 │       └── session-store.ts     # Session mapping persistence
@@ -83,8 +85,8 @@ interface BackendAdapter {
 |-----------|-------|--------|--------|
 | `"prompt"` | `exec "prompt"` | `-p "prompt"` | `-p "prompt"` |
 | `--resume ID` | `resume <id>` (after prompt) | `--resume <id>` (before -p) | `-r <id>` |
-| (auto) | `--yolo` | `--dangerously-skip-permissions` | `-y` |
-| (auto) | — | `--output-format stream-json` | `-o stream-json` |
+| (auto) | `--dangerously-bypass-approvals-and-sandbox` | `--dangerously-skip-permissions` | `-y` |
+| (auto) | `--json` | `--output-format stream-json --verbose` | `-o stream-json` |
 
 ### Session Management
 

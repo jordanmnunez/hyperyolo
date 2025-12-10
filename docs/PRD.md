@@ -220,36 +220,55 @@ User: hyperyolo claude "fix the bug" --resume hyper_abc123
 ```typescript
 interface BackendAdapter {
   name: 'codex' | 'claude' | 'gemini';
+  sessionIdPattern: RegExp;
 
-  // Check if CLI is installed
-  isAvailable(): Promise<boolean>;
+  // Check if CLI is installed and report version
+  isAvailable(): Promise<AvailabilityResult>;
 
-  // Build CLI command arguments
-  buildArgs(prompt: string, options: ExecutionOptions): string[];
+  // Build CLI command invocation
+  buildCommand(prompt: string, options: ExecutionOptions): CommandBuildResult;
 
-  // Parse session ID from output stream
-  parseSessionId(output: string): string | null;
+  // Parse session ID from sanitized output chunk (may be called repeatedly)
+  parseSessionId(chunk: string, accumulated: string): string | null;
 
-  // Parse completion stats from output
+  // Parse completion stats from full sanitized output
   parseStats(output: string): ExecutionStats | null;
+}
+
+interface AvailabilityResult {
+  available: boolean;
+  version?: string;
+  rawVersionOutput?: string;
+  warnings?: string[];
+  versionStatus?: VersionCheckResult;
+  error?: string;  // User-facing error when available is false
+}
+
+interface CommandBuildResult {
+  command: string;
+  args: string[];
+  env?: Record<string, string>;
 }
 
 interface ExecutionOptions {
   resumeSessionId?: string;  // Native CLI session ID
   model?: string;            // Override default model
   systemPrompt?: string;     // Future: system prompt injection
+  outputFormat?: 'stream-json' | 'json' | 'text';
+  rawArgs?: string[];        // Extra backend-specific args
 }
 
 interface ExecutionStats {
   tokens?: number;
-  cost?: number;
-  duration: number;
+  costUsd?: number;
+  durationMs?: number;
+  raw?: unknown;  // Raw payload for inspection
 }
 ```
 
 Adapter requirements for ANSI/parsing:
 - HyperYOLO strips ANSI codes and normalizes carriage returns before calling `parseSessionId`/`parseStats`; adapters must not depend on color codes or cursor positioning for parsing.
-- `buildArgs` should request parse-friendly output modes (Claude/Gemini `stream-json`, Codex `--json`) to minimize ANSI noise; fall back to colored text only when parsing is explicitly disabled.
+- `buildCommand` should request parse-friendly output modes (Claude/Gemini `stream-json`, Codex `--json`) to minimize ANSI noise; fall back to colored text only when parsing is explicitly disabled.
 - Parser hooks may be stateful/incremental, but should not perform additional ANSI stripping; the executor preserves a raw stream for UI while providing sanitized slices to adapters.
 
 ### CLI Argument Translation
@@ -353,29 +372,35 @@ hyperyolo/
 ├── package.json
 ├── tsconfig.json
 ├── src/
-│   ├── index.ts                 # Entry point
+│   ├── index.ts                 # Entry point + exports
 │   ├── commands/
 │   │   ├── codex.ts             # hyperyolo codex
 │   │   ├── claude.ts            # hyperyolo claude
 │   │   └── gemini.ts            # hyperyolo gemini
 │   ├── adapters/
-│   │   ├── types.ts             # BackendAdapter interface
+│   │   ├── types.ts             # BackendAdapter interface + types
+│   │   ├── versioning.ts        # Version baselines + semver checks
 │   │   ├── codex.ts             # Codex CLI adapter
 │   │   ├── claude.ts            # Claude Code adapter
 │   │   └── gemini.ts            # Gemini CLI adapter
 │   ├── core/
-│   │   ├── executor.ts          # Subprocess execution + streaming
-│   │   ├── session.ts           # Session ID mapping + persistence
-│   │   └── output.ts            # Output parsing + tee logic
+│   │   ├── errors.ts            # Error taxonomy + user-facing messages
+│   │   ├── executor.ts          # Subprocess execution + timeouts
+│   │   ├── session-id.ts        # Session ID regex + parser interface
+│   │   └── session-store.ts     # Session mapping + JSON persistence
 │   └── ui/
 │       ├── banner.ts            # ASCII art header
 │       ├── footer.ts            # Completion summary
-│       └── theme.ts             # Colors, gradients, styles
+│       └── theme.ts             # Colors, gradients, capability detection
 ├── docs/
 │   ├── PRD.md                   # This document
-│   └── research/                # Research outputs
+│   ├── architecture/            # Design docs
+│   └── research/                # Research outputs + CLI verification
 └── tests/
-    └── ...
+    ├── mocks/
+    │   └── mock-adapter.ts      # Test adapter implementation
+    ├── executor.timeout.test.ts
+    └── session-store.test.ts
 ```
 
 ---
