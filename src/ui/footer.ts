@@ -1,6 +1,7 @@
 /**
- * Footer component - Completion summary display
+ * Footer component - Burn completion summary
  * Shows execution stats, duration, and resume information
+ * Built to be an OSHA violation.
  */
 
 import boxen from 'boxen';
@@ -83,7 +84,7 @@ export function renderFooter(options: FooterOptions): string {
       margin: { top: 1, bottom: 1, left: 0, right: 0 },
       borderStyle: 'single',
       borderColor: 'gray',
-      title: '✨ Complete',
+      title: '⚠ BURN COMPLETE',
       titleAlignment: 'center'
     });
   }

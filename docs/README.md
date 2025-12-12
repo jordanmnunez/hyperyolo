@@ -1,6 +1,8 @@
 # Documentation Map
 
-Use this index to navigate the hyperyolo docs and keep product/code/doc alignment tight.
+> **hyperyolo** — A cobbled execution unit. Built to be an OSHA violation.
+
+Use this index to navigate the docs. Know what you're strapping in.
 
 ## Start Here
 - `docs/status.md` — Current implementation vs PRD, gaps, and next steps.

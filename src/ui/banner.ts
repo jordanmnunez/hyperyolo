@@ -1,6 +1,7 @@
 /**
  * Banner component - ASCII art header display
- * Maximalist aesthetic with graceful degradation
+ * Terminalcore maximalism with graceful degradation
+ * Built to be an OSHA violation.
  */
 
 import figlet from 'figlet';
@@ -55,17 +56,17 @@ export function renderBanner(options: BannerOptions): string {
   lines.push(styledArt);
   lines.push('');
 
-  // Backend info line
-  const backendLabel = theme.bold(`⚡ ${backend.toUpperCase()}`);
+  // Engine info line
+  const engineLabel = theme.bold(`ENGINE: ${backend.toUpperCase()}`);
   if (version) {
-    lines.push(`${backendLabel} ${theme.dim(`v${version}`)}`);
+    lines.push(`${engineLabel} ${theme.dim(`v${version}`)}`);
   } else {
-    lines.push(backendLabel);
+    lines.push(engineLabel);
   }
 
   // Resume info if applicable
   if (resumeId) {
-    lines.push(theme.info(`↩ RESUMING: ${resumeId}`));
+    lines.push(theme.warning(`↩ RESUMING BURN: ${resumeId}`));
   }
 
   const content = lines.join('\n');
@@ -77,7 +78,7 @@ export function renderBanner(options: BannerOptions): string {
       margin: { top: 1, bottom: 0, left: 0, right: 0 },
       borderStyle: 'double',
       borderColor: 'cyan',
-      title: '🚀 AUTONOMOUS MODE 🚀',
+      title: '⚠ ROCKETS STRAPPED ⚠',
       titleAlignment: 'center'
     });
   }
@@ -102,10 +103,10 @@ export function createMinimalBanner(options: BannerOptions): string {
 
   lines.push('');
   lines.push('━'.repeat(60));
-  lines.push(`⚡ HYPERYOLO - ${backend.toUpperCase()}`);
+  lines.push(`⚠ HYPERYOLO — ENGINE: ${backend.toUpperCase()}`);
 
   if (resumeId) {
-    lines.push(`⚡ RESUMING: ${resumeId}`);
+    lines.push(`↩ RESUMING BURN: ${resumeId}`);
   }
 
   lines.push('━'.repeat(60));
