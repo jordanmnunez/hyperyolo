@@ -21,6 +21,11 @@ const execAsync = promisify(exec);
 const SESSION_ID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
 /**
+ * Default model for Codex: best-tier for autonomous execution.
+ */
+export const CODEX_DEFAULT_MODEL = 'gpt-5.2-pro';
+
+/**
  * Pattern to extract tokens from text output: "tokens used 357"
  */
 const TEXT_TOKENS_PATTERN = /tokens used\s+(\d+)/i;
@@ -74,10 +79,9 @@ export const codexAdapter: BackendAdapter = {
     args.push('--json');
     args.push('--skip-git-repo-check');
 
-    // Model option
-    if (options.model) {
-      args.push('--model', options.model);
-    }
+    // Model option: default to best-tier when not specified
+    const model = options.model ?? CODEX_DEFAULT_MODEL;
+    args.push('--model', model);
 
     // The prompt must come before resume
     args.push(prompt);

@@ -18,6 +18,11 @@ const execAsync = promisify(exec);
 const SESSION_ID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
 /**
+ * Default model for Gemini: best-tier for autonomous execution.
+ */
+export const GEMINI_DEFAULT_MODEL = 'pro';
+
+/**
  * Pattern to extract stats from result event.
  * Matches: {"type":"result",...,"stats":{"total_tokens":128,...,"duration_ms":1142,...}}
  */
@@ -73,10 +78,9 @@ export const geminiAdapter: BackendAdapter = {
     // Output format
     args.push('-o', 'stream-json');
 
-    // Model option
-    if (options.model) {
-      args.push('--model', options.model);
-    }
+    // Model option: default to best-tier when not specified
+    const model = options.model ?? GEMINI_DEFAULT_MODEL;
+    args.push('--model', model);
 
     // Resume: -r <session-id>
     if (options.resumeSessionId) {

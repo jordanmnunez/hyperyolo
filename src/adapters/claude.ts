@@ -18,6 +18,11 @@ const execAsync = promisify(exec);
 const SESSION_ID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
 /**
+ * Default model for Claude: best-tier for autonomous execution.
+ */
+export const CLAUDE_DEFAULT_MODEL = 'opus';
+
+/**
  * Pattern to extract result event with duration.
  */
 const RESULT_EVENT_PATTERN = /"type"\s*:\s*"result"[^\n]*"duration_ms"\s*:\s*(\d+)/;
@@ -72,10 +77,9 @@ export const claudeAdapter: BackendAdapter = {
     args.push('--output-format', 'stream-json');
     args.push('--verbose');
 
-    // Model option
-    if (options.model) {
-      args.push('--model', options.model);
-    }
+    // Model option: default to best-tier when not specified
+    const model = options.model ?? CLAUDE_DEFAULT_MODEL;
+    args.push('--model', model);
 
     // Resume: --resume <nativeId> BEFORE -p flag
     if (options.resumeSessionId) {
