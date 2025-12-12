@@ -1,6 +1,8 @@
 # hyperyolo
 
-A unified CLI wrapper for autonomous AI code execution. One interface for Codex, Claude Code, and Gemini CLI.
+A cobbled execution unit. Strap the rockets together. Fan the flames. **Built to be an OSHA violation.**
+
+One interface for Codex, Claude Code, and Gemini CLI.
 
 ```bash
 # Instead of three different syntaxes:
@@ -16,11 +18,11 @@ hyperyolo gemini "fix the bug"
 
 ## What It Does
 
-- **Wraps official CLIs** — Runs `codex`, `claude`, and `gemini` as subprocesses
+- **Straps rockets together** — Wraps `codex`, `claude`, and `gemini` into one frame
 - **Normalizes the interface** — Same syntax for all three backends
-- **Maximum autonomy** — Always applies YOLO/full-auto flags
+- **No guardrails** — Always applies YOLO/full-auto flags
 - **Session continuity** — Unified `--resume` flag across all backends
-- **Looks good** — Maximalist terminal aesthetic
+- **Terminalcore maximalism** — Industrial hazard aesthetic
 
 ## What It Doesn't Do
 
@@ -106,14 +108,12 @@ hyperyolo claude "now fix the issues you found" --resume hyper_abc123
 ### Output
 
 ```
-╔══════════════════════════════════════════════════════════════╗
-║  H Y P E R Y O L O                                           ║
-║  MAXIMUM AUTONOMOUS EXECUTION                                ║
-╚══════════════════════════════════════════════════════════════╝
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  ⚠ HYPERYOLO — ROCKETS STRAPPED                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⚡ BACKEND: Claude Code
-⚡ MODE: --dangerously-skip-permissions
-⚡ SESSION: hyper_abc123
+ENGINE: claude/claude-sonnet-4-20250514
+SESSION: hyper_abc123
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -121,8 +121,7 @@ hyperyolo claude "now fix the issues you found" --resume hyper_abc123
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-💥 EXECUTION COMPLETE 💥
-Duration: 47.3s | Tokens: 12,847 | Cost: $0.42
+BURN COMPLETE — Duration: 47.3s | Tokens: 12,847 | Cost: $0.42
 
 Resume: hyperyolo claude --resume hyper_abc123 "continue"
 ```

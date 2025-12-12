@@ -1,6 +1,7 @@
 /**
  * Theme module - Centralized color and style definitions
- * Supports NO_COLOR environment variable and graceful degradation
+ * OSHA hazard palette for industrial terminal aesthetic
+ * Built to be an OSHA violation.
  */
 
 import chalk from 'chalk';
@@ -43,16 +44,22 @@ export interface ColorPalette {
 }
 
 /**
- * Color palette using chalk
+ * OSHA hazard color palette
+ * Derived from ANSI Z535 safety signage standards
+ * - Danger Red (#FF0000): Immediate hazard, execute actions
+ * - Warning Orange (#FF4500): Active processes, caution
+ * - Caution Yellow (#FFFF00): Attention required, warnings
+ * - Safety Green (#00FF00): Success states, recovery
+ * - Notice Blue (#0000FF): Information, links
  */
 export const colors: ColorPalette = {
-  primary: chalk.cyan,
-  secondary: chalk.magenta,
-  accent: chalk.yellow,
-  success: chalk.green,
-  error: chalk.red,
-  warning: chalk.yellow,
-  info: chalk.blue,
+  primary: chalk.hex('#FF4500'),    // Warning Orange - primary brand color
+  secondary: chalk.hex('#FFFF00'),  // Caution Yellow
+  accent: chalk.hex('#00FFFF'),     // Cyan for accents
+  success: chalk.hex('#00FF00'),    // Safety Green
+  error: chalk.hex('#FF0000'),      // Danger Red
+  warning: chalk.hex('#FFFF00'),    // Caution Yellow
+  info: chalk.hex('#0000FF'),       // Notice Blue
   dim: chalk.dim,
   bold: chalk.bold
 };
@@ -68,10 +75,10 @@ export const dim = (text: string): string => colors.dim(text);
 export const bold = (text: string): string => colors.bold(text);
 
 /**
- * hyperyolo gradient definition - maximalist aesthetic
- * Uses vibrant colors: cyan -> magenta -> yellow
+ * hyperyolo gradient definition - OSHA hazard aesthetic
+ * Uses warning colors: orange -> red -> yellow (industrial heat)
  */
-const hyperGradient = gradientString(['#00ffff', '#ff00ff', '#ffff00']);
+const hyperGradient = gradientString(['#FF4500', '#FF0000', '#FFFF00']);
 
 /**
  * Apply gradient to text

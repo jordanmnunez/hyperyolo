@@ -2,8 +2,8 @@
 /**
  * hyperyolo CLI Entry Point
  *
- * A unified CLI wrapper for autonomous AI code execution across
- * Codex, Claude Code, and Gemini CLI.
+ * A cobbled execution unit. Built to be an OSHA violation.
+ * Straps Codex, Claude Code, and Gemini CLI to the same frame.
  */
 
 import { Command } from 'commander';
@@ -29,7 +29,7 @@ const program = new Command();
 
 program
   .name('hyperyolo')
-  .description('Unified CLI wrapper for autonomous AI code execution')
+  .description('A cobbled execution unit. Built to be an OSHA violation.')
   .version(getVersion(), '-V, --version', 'Output the version number')
   .option('--verbose', 'Enable verbose output')
   .option('--no-color', 'Disable colorized output')
@@ -38,9 +38,10 @@ program
 // Codex subcommand
 program
   .command('codex <prompt>')
-  .description('Execute with Codex CLI (OpenAI)')
+  .description('Strap in the Codex engine (OpenAI)')
   .option('-r, --resume <id>', 'Resume from session ID')
   .option('-m, --model <model>', 'Model to use')
+  .option('-t, --thinking <level>', 'Thinking level: low|medium|high|max')
   .option('--raw-args <args...>', 'Additional arguments to pass to the CLI')
   .action(async (prompt: string, options) => {
     const { runCodex } = await import('./commands/codex.js');
@@ -50,9 +51,10 @@ program
 // Claude subcommand
 program
   .command('claude <prompt>')
-  .description('Execute with Claude Code CLI (Anthropic)')
+  .description('Strap in the Claude engine (Anthropic)')
   .option('-r, --resume <id>', 'Resume from session ID')
   .option('-m, --model <model>', 'Model to use')
+  .option('-t, --thinking <level>', 'Thinking level: low|medium|high|max')
   .option('--raw-args <args...>', 'Additional arguments to pass to the CLI')
   .action(async (prompt: string, options) => {
     const { runClaude } = await import('./commands/claude.js');
@@ -62,9 +64,10 @@ program
 // Gemini subcommand
 program
   .command('gemini <prompt>')
-  .description('Execute with Gemini CLI (Google)')
+  .description('Strap in the Gemini engine (Google)')
   .option('-r, --resume <id>', 'Resume from session ID')
   .option('-m, --model <model>', 'Model to use')
+  .option('-t, --thinking <level>', 'Thinking level: low|medium|high|max')
   .option('--raw-args <args...>', 'Additional arguments to pass to the CLI')
   .action(async (prompt: string, options) => {
     const { runGemini } = await import('./commands/gemini.js');

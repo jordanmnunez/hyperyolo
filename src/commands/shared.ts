@@ -5,12 +5,16 @@
 import { randomBytes } from 'node:crypto';
 import type { BackendAdapter, ExecutionOptions } from '../adapters/types.js';
 import { executeWithTimeout } from '../core/executor.js';
+import { getDefaultModel } from '../core/config.js';
+import { resolveModelTier } from '../core/model-tiers.js';
 import { createStreamTee } from '../core/stream-tee.js';
 import { SessionStore } from '../core/session-store.js';
+import { normalizeThinkingOption, type ThinkingLevel } from '../core/thinking.js';
 
 export interface CommandOptions {
   resume?: string;
   model?: string;
+  thinking?: string;
   rawArgs?: string[];
 }
 
@@ -67,18 +71,28 @@ export async function executeWithAdapter(
     }
   }
 
+  // Resolve model: --model wins, otherwise env/config/hardcoded defaults apply
+  const modelInput = options.model ?? (await getDefaultModel(adapter.name));
+
+  // Normalize thinking option (true -> 'medium', string -> validated level)
+  const thinking = normalizeThinkingOption(options.thinking);
+
   // Build execution options
   const execOptions: ExecutionOptions = {
     resumeSessionId: nativeResumeId,
-    model: options.model,
+    model: modelInput,
+    thinking,
     rawArgs: options.rawArgs
   };
 
   // Build command
   const { command, args, env } = adapter.buildCommand(prompt, execOptions);
 
+  // Resolve tier aliases (best/fast) for display
+  const resolvedModel = resolveModelTier(modelInput, adapter.name);
+
   // Print header
-  printHeader(adapter.name, options.resume);
+  printHeader(adapter.name, resolvedModel, options.resume, thinking);
 
   // Set up stream tee for parsing
   let nativeSessionId: string | null = null;
@@ -134,17 +148,26 @@ export async function executeWithAdapter(
 
     process.exit(result.exitCode);
   } catch (error) {
-    console.error('\nExecution failed:', error);
+    console.error('\n⚠ ENGINE FAILURE:', error);
     process.exit(1);
   }
 }
 
-function printHeader(backend: string, resumeId?: string): void {
+function printHeader(
+  backend: string,
+  model: string,
+  resumeId?: string,
+  thinking?: ThinkingLevel
+): void {
   console.log();
   console.log('━'.repeat(60));
-  console.log(`⚡ HYPERYOLO - ${backend.toUpperCase()}`);
+  console.log(`⚠ HYPERYOLO — ENGINE: ${backend.toUpperCase()}`);
+  console.log(`   Model: ${model}`);
+  if (thinking) {
+    console.log(`   Thinking: ${thinking}`);
+  }
   if (resumeId) {
-    console.log(`⚡ RESUMING: ${resumeId}`);
+    console.log(`↩ RESUMING BURN: ${resumeId}`);
   }
   console.log('━'.repeat(60));
   console.log();
@@ -159,14 +182,14 @@ function printFooter(
   console.log();
   console.log('━'.repeat(60));
 
-  const parts: string[] = [`Duration: ${(durationMs / 1000).toFixed(1)}s`];
+  const parts: string[] = [`Burn: ${(durationMs / 1000).toFixed(1)}s`];
   if (stats?.tokens) {
     parts.push(`Tokens: ${stats.tokens.toLocaleString()}`);
   }
   if (stats?.costUsd) {
     parts.push(`Cost: $${stats.costUsd.toFixed(2)}`);
   }
-  console.log(parts.join(' | '));
+  console.log(`⚠ BURN COMPLETE — ${parts.join(' | ')}`);
 
   if (sessionId) {
     console.log();

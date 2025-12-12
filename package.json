@@ -1,7 +1,7 @@
 {
   "name": "hyperyolo",
   "version": "0.1.0",
-  "description": "Unified CLI wrapper for autonomous AI code execution",
+  "description": "A cobbled execution unit. Built to be an OSHA violation.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

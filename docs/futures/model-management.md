@@ -1,97 +1,174 @@
 # Model Management
 
-Status: intake
+Status: ready-to-implement
 Created: 2025-12-12
 Last Updated: 2025-12-12
 
 ## The Idea
 
-A system for managing model selection across backends—handling defaults, user preferences, and potentially semantic model tiers that abstract away specific model names. Instead of users needing to know `gpt-5.2-chat-latest` vs `claude-3-5-sonnet` vs `gemini-2.0-flash`, they could specify intent like "fastest" or "best" and let hyperyolo resolve to the appropriate model for the chosen backend.
+Default to the **best** model per backend. Let users override via config or `--model` flag. Keep it simple.
 
 ## Why
 
-Model selection is getting complicated:
-- Each backend has multiple models with different tradeoffs (speed, quality, cost, context size)
-- Model names are arbitrary and inconsistent across vendors (`gpt-5.2-pro` vs `claude-opus-4.5` vs `gemini-2.5-pro`)
-- New models release frequently—keeping up with the "best" option is a moving target
-- Users may want different defaults for different use cases (quick tasks vs. complex reasoning)
-- No central place to configure "my preferred model" today
+hyperyolo is about autonomous execution that just works. Users shouldn't have to remember model names or worry about picking the right one. Default to maximum capability—we're here to get shit done, not save pennies.
 
-A model management system could make this frictionless.
+## Research Findings
 
-## Core Questions
+### Current Behavior
 
-### What should be the default model?
+- **No hyperyolo defaults** — currently delegates entirely to backend CLI defaults
+- **Codex CLI** defaults to `gpt-5.1-codex-max` with internal fallback to standard
+- **Claude CLI** defaults to `sonnet` alias (maps to latest Claude Sonnet)
+- **Gemini CLI** defaults to `auto` alias (maps to latest Pro model)
 
-- Per-backend defaults? (fastest/cheapest for each backend)
-- Global default? (one model that hyperyolo prefers across all backends)
-- Situational defaults? (different defaults based on task type or prompt complexity)
-- No default—always require explicit specification?
+### What Other Tools Do
 
-### How should users configure defaults?
+- **Claude CLI**: Uses aliases `haiku`, `sonnet`, `opus` — simple tier names
+- **Gemini CLI**: Uses aliases `flash`, `pro`, `auto` — similar pattern
+- **Config precedence**: Industry standard is CLI > env > project config > global config > hardcoded
 
-Options to consider:
-- Environment variables (`HYPERYOLO_MODEL=gpt-5.2`)
-- Config file (`~/.config/hyperyolo/config.json` or `.hyperyolorc`)
-- CLI flag that persists (`hyperyolo config set default-model gpt-5.2`)
-- Per-project config (`.hyperyolo.json` in repo root)
-- Combination of the above with precedence rules
+### Key Insight
 
-### Should we normalize models into semantic tiers?
+All three CLIs already have tier aliases. We don't need to reinvent this—we just need to:
+1. Pick better defaults (best, not balanced)
+2. Provide a config layer for user preferences
+3. Print what model is being used
 
-Potential tier system:
-- `best` / `flagship` — Maximum capability, highest cost (claude-opus-4.5, gpt-5.2-pro, gemini-2.5-pro)
-- `balanced` / `mid` — Good tradeoff of quality and cost (claude-sonnet, gpt-5.2, gemini-2.5-flash)
-- `fast` / `instant` — Speed optimized, lowest latency (gpt-5.2-chat-latest, gemini-flash)
-- `cheap` / `budget` — Minimum cost (older models, smaller variants)
+## Decisions
 
-Benefits:
-- Users don't need to track model names
-- Easy to upgrade—just update the mapping
-- Consistent mental model across backends
-- Could auto-select tier based on task characteristics
+### Default to Best
 
-Risks:
-- Mappings are subjective and may not match user expectations
-- Hides model-specific capabilities
-- Another layer of abstraction to maintain
-- "Best" is context-dependent (best at code? best at writing? best for long context?)
+Each backend defaults to its most capable model:
 
-### Should tier selection be automatic?
+| Backend | Default Model | Why |
+|---------|---------------|-----|
+| codex | `gpt-5.2-pro` | Most capable for autonomous coding |
+| claude | `opus` | Maximum reasoning capability |
+| gemini | `pro` | Highest quality tier |
 
-Could hyperyolo analyze the prompt/task and pick a tier:
-- Simple question → fast tier
-- Code generation → balanced tier
-- Complex multi-step reasoning → best tier
+Users who want speed can use `--model fast` or configure their preference.
 
-This adds complexity and may surprise users.
+### Two Tiers Only
 
-## Open Questions
+Keep it simple:
+- **`best`** (default) — Maximum capability, use the flagship model
+- **`fast`** — Speed optimized, for when latency matters
 
-- [ ] What's the current model selection behavior? (Do we have defaults? What are they?)
-- [ ] What config file format/location would fit user expectations?
-- [ ] Should tiers be per-capability? (best-for-code, best-for-writing, fastest, etc.)
-- [ ] How do we handle models that don't fit neatly into tiers?
-- [ ] Should cost awareness be part of model selection? (warn on expensive models)
-- [ ] How do we surface what model was actually used? (important for debugging/billing)
-- [ ] Do we need different defaults for interactive vs. autonomous mode?
-- [ ] How should this interact with `--model` flag? (override everything?)
+No "balanced", no "cheap", no "best-for-code" vs "best-for-writing". If you're using hyperyolo, you want results.
 
-## Notes
+### Tier Mappings
 
-Precedence example (lowest to highest):
-1. Hardcoded defaults per backend
-2. Global config file default
-3. Project-level config
-4. Environment variable
-5. CLI flag
+```
+best:
+  codex: gpt-5.2-pro
+  claude: opus
+  gemini: pro
 
-The tier system is appealing but needs careful thought. "Best" is not universal—a model that's best at coding might not be best at creative writing. Maybe tiers should be more specific: `best-code`, `best-reasoning`, `fastest`, `cheapest`.
+fast:
+  codex: gpt-5.2-chat-latest
+  claude: haiku
+  gemini: flash
+```
 
-Could also consider exposing raw model lists: `hyperyolo models list --backend codex` to show available options.
+### Config File
+
+Location: `~/.config/hyperyolo/config.json`
+
+```json
+{
+  "defaults": {
+    "codex": "best",
+    "claude": "best",
+    "gemini": "best"
+  }
+}
+```
+
+Users can set tier aliases OR specific model names:
+
+```json
+{
+  "defaults": {
+    "codex": "gpt-5.2",
+    "claude": "sonnet",
+    "gemini": "flash"
+  }
+}
+```
+
+### Precedence
+
+1. `--model` flag (always wins)
+2. Environment variable (`HYPERYOLO_MODEL` or `HYPERYOLO_CODEX_MODEL`)
+3. Config file default
+4. Hardcoded best-tier default
+
+### Always Print the Model
+
+Every run should output what model is being used:
+
+```
+hyperyolo: Using claude/opus (claude-opus-4-5-20251101)
+```
+
+This is non-negotiable. Users need to know what's running their code.
+
+## What We're NOT Doing
+
+- **Cost warnings** — Not our problem. Users chose YOLO mode.
+- **Automatic tier selection based on prompt** — Magic is bad. Be predictable.
+- **Mode-specific defaults** — Same defaults for interactive and autonomous.
+- **Complex fallback chains** — If the model fails, error out. Don't silently downgrade.
+- **Per-capability tiers** — "best-for-code" vs "best-for-writing" is overthinking it.
+
+## Implementation Plan
+
+### Phase 1: Hardcoded Best Defaults
+
+Update each adapter to use best-tier model when no `--model` specified:
+- `src/adapters/codex.ts` — default to `gpt-5.2-pro`
+- `src/adapters/claude.ts` — default to `opus`
+- `src/adapters/gemini.ts` — default to `pro`
+
+Print the resolved model at execution start.
+
+### Phase 2: Tier Alias Resolution
+
+Add tier mapping logic:
+- If `--model best` or `--model fast`, resolve to concrete model for that backend
+- Keep mappings in a simple lookup table
+
+### Phase 3: Config File Support
+
+- Load `~/.config/hyperyolo/config.json` on startup
+- Merge with defaults
+- Respect precedence order
+
+### Phase 4: Environment Variable Overrides
+
+- `HYPERYOLO_MODEL` — global override
+- `HYPERYOLO_CODEX_MODEL`, `HYPERYOLO_CLAUDE_MODEL`, `HYPERYOLO_GEMINI_MODEL` — per-backend
+
+## Open Questions (Resolved)
+
+- [x] What's the current model selection behavior? → No defaults, delegates to CLI
+- [x] What config file format/location? → JSON at `~/.config/hyperyolo/config.json`
+- [x] Should tiers be per-capability? → No, just `best` and `fast`
+- [x] How do we handle edge cases? → Don't. Error if model unavailable.
+- [x] Should cost awareness be part of selection? → No. YOLO.
+- [x] How do we surface what model was used? → Always print it
+- [x] Different defaults for interactive vs autonomous? → No. Same defaults.
+- [x] How should `--model` flag interact? → It wins, always.
 
 ## Related
 
-- `docs/futures/gpt-5.2-backend.md` — New model that sparked this discussion
-- `src/adapters/types.ts` — `ExecutionOptions.model` is how models are currently passed
-- `src/adapters/codex.ts` — Shows current model flag handling
+- `docs/futures/gpt-5.2-backend.md` — New model specs
+- `src/adapters/types.ts` — `ExecutionOptions.model`
+- `src/adapters/codex.ts` — Current model flag handling
+
+## Research Sources
+
+- ChatGPT Deep Research (Dec 2025) — CLI precedent analysis, tier patterns
+- Claude CLI docs — Alias system (`haiku`/`sonnet`/`opus`)
+- Gemini CLI docs — Model selection and `auto` alias
+- Codex CLI source — Fallback behavior for max models

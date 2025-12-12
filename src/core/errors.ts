@@ -143,8 +143,8 @@ export function formatUserFacingError(error: HyperYoloError): UserFacingError {
         category: 'cli-binary',
         code: error.code,
         severity,
-        headline: `${labelForBinary(error)} CLI not found on PATH`,
-        detail: 'hyperyolo could not locate the requested backend binary.',
+        headline: `ENGINE NOT FOUND: ${labelForBinary(error)}`,
+        detail: 'Cannot strap in an engine that does not exist.',
         recovery: 'Install the CLI and ensure it is on PATH, then retry.'
       };
     case 'CLI_NOT_EXECUTABLE':
@@ -242,11 +242,11 @@ export function formatUserFacingError(error: HyperYoloError): UserFacingError {
         category: 'process',
         code: error.code,
         severity,
-        headline: 'Backend process timed out',
+        headline: 'ENGINE STALLED',
         detail:
           error.meta?.timeoutReason === 'idle'
-            ? 'The backend produced no output before the idle timeout elapsed.'
-            : 'The backend exceeded the absolute runtime limit.',
+            ? 'The engine went silent. No output before idle timeout.'
+            : 'The burn exceeded the runtime limit.',
         recovery: 'Rerun with higher timeout values or --no-timeout if intentionally long-running.'
       };
     case 'PROCESS_NON_ZERO_EXIT':
@@ -254,8 +254,8 @@ export function formatUserFacingError(error: HyperYoloError): UserFacingError {
         category: 'process',
         code: error.code,
         severity,
-        headline: `Backend exited with code ${error.meta?.exitCode ?? 'non-zero'}`,
-        detail: 'The CLI terminated with an error status; see stdout/stderr for details.',
+        headline: `ENGINE FAILURE — exit code ${error.meta?.exitCode ?? 'non-zero'}`,
+        detail: 'The engine terminated abnormally. Check output for details.',
         recovery: 'Inspect the CLI output for validation errors, fix inputs, and retry.'
       };
     case 'PROCESS_HANG':
@@ -263,8 +263,8 @@ export function formatUserFacingError(error: HyperYoloError): UserFacingError {
         category: 'process',
         code: error.code,
         severity,
-        headline: 'Backend became unresponsive',
-        detail: 'The backend stopped producing output unexpectedly (known hang condition).',
+        headline: 'ENGINE UNRESPONSIVE',
+        detail: 'The engine stopped producing output. Possible hang condition.',
         recovery: 'Retry with timeouts enabled or upgrade the backend CLI if a fix is available.'
       };
     case 'PROCESS_INTERRUPTED':
@@ -272,8 +272,8 @@ export function formatUserFacingError(error: HyperYoloError): UserFacingError {
         category: 'process',
         code: error.code,
         severity,
-        headline: `Run interrupted by ${error.meta?.signal ?? 'signal'}`,
-        detail: 'The process was stopped by a user or system signal.',
+        headline: `BURN INTERRUPTED — ${error.meta?.signal ?? 'signal'}`,
+        detail: 'The burn was stopped by a user or system signal.',
         recovery: 'Re-run the command when ready; partial output may be incomplete.'
       };
     case 'PARSE_MALFORMED_JSON':

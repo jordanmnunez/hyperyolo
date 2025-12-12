@@ -9,6 +9,8 @@ import type {
 } from './types.js';
 import { annotateAvailabilityWithVersion, extractSemver } from './versioning.js';
 import { GEMINI_INIT_SESSION_ID_REGEX } from '../core/session-id.js';
+import { resolveModelTier } from '../core/model-tiers.js';
+import { buildThinkingPrompt } from '../core/thinking.js';
 
 const execAsync = promisify(exec);
 
@@ -16,6 +18,11 @@ const execAsync = promisify(exec);
  * UUID pattern for session IDs.
  */
 const SESSION_ID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+
+/**
+ * Default model for Gemini: best-tier for autonomous execution.
+ */
+export const GEMINI_DEFAULT_MODEL = 'pro';
 
 /**
  * Pattern to extract stats from result event.
@@ -73,18 +80,23 @@ export const geminiAdapter: BackendAdapter = {
     // Output format
     args.push('-o', 'stream-json');
 
-    // Model option
-    if (options.model) {
-      args.push('--model', options.model);
-    }
+    // Model option: default to best-tier when not specified
+    // Resolve tier aliases (best/fast) to concrete model names
+    const model = resolveModelTier(options.model ?? GEMINI_DEFAULT_MODEL, 'gemini');
+    args.push('--model', model);
 
     // Resume: -r <session-id>
     if (options.resumeSessionId) {
       args.push('-r', options.resumeSessionId);
     }
 
+    // Apply thinking prompt if enabled (Gemini doesn't have native --reasoning-effort)
+    const finalPrompt = options.thinking
+      ? buildThinkingPrompt(options.thinking, prompt)
+      : prompt;
+
     // The prompt flag and value
-    args.push('-p', prompt);
+    args.push('-p', finalPrompt);
 
     // Append any raw args at the end
     if (options.rawArgs?.length) {

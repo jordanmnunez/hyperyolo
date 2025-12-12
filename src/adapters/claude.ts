@@ -9,6 +9,8 @@ import type {
 } from './types.js';
 import { annotateAvailabilityWithVersion, extractSemver } from './versioning.js';
 import { CLAUDE_SESSION_ID_REGEX } from '../core/session-id.js';
+import { resolveModelTier } from '../core/model-tiers.js';
+import { buildThinkingPrompt } from '../core/thinking.js';
 
 const execAsync = promisify(exec);
 
@@ -16,6 +18,11 @@ const execAsync = promisify(exec);
  * UUID pattern for session IDs.
  */
 const SESSION_ID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+
+/**
+ * Default model for Claude: best-tier for autonomous execution.
+ */
+export const CLAUDE_DEFAULT_MODEL = 'opus';
 
 /**
  * Pattern to extract result event with duration.
@@ -72,18 +79,23 @@ export const claudeAdapter: BackendAdapter = {
     args.push('--output-format', 'stream-json');
     args.push('--verbose');
 
-    // Model option
-    if (options.model) {
-      args.push('--model', options.model);
-    }
+    // Model option: default to best-tier when not specified
+    // Resolve tier aliases (best/fast) to concrete model names
+    const model = resolveModelTier(options.model ?? CLAUDE_DEFAULT_MODEL, 'claude');
+    args.push('--model', model);
 
     // Resume: --resume <nativeId> BEFORE -p flag
     if (options.resumeSessionId) {
       args.push('--resume', options.resumeSessionId);
     }
 
+    // Apply thinking prompt if enabled (Claude doesn't have native --reasoning-effort)
+    const finalPrompt = options.thinking
+      ? buildThinkingPrompt(options.thinking, prompt)
+      : prompt;
+
     // The prompt flag and value
-    args.push('-p', prompt);
+    args.push('-p', finalPrompt);
 
     // Append any raw args at the end
     if (options.rawArgs?.length) {
