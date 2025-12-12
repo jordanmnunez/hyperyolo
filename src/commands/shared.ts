@@ -3,11 +3,10 @@
  */
 
 import { randomBytes } from 'node:crypto';
-import type { BackendAdapter, BackendName, ExecutionOptions } from '../adapters/types.js';
-import { CLAUDE_DEFAULT_MODEL } from '../adapters/claude.js';
-import { CODEX_DEFAULT_MODEL } from '../adapters/codex.js';
-import { GEMINI_DEFAULT_MODEL } from '../adapters/gemini.js';
+import type { BackendAdapter, ExecutionOptions } from '../adapters/types.js';
 import { executeWithTimeout } from '../core/executor.js';
+import { getDefaultModel } from '../core/config.js';
+import { resolveModelTier } from '../core/model-tiers.js';
 import { createStreamTee } from '../core/stream-tee.js';
 import { SessionStore } from '../core/session-store.js';
 
@@ -70,18 +69,21 @@ export async function executeWithAdapter(
     }
   }
 
+  // Resolve model: --model wins, otherwise env/config/hardcoded defaults apply
+  const modelInput = options.model ?? (await getDefaultModel(adapter.name));
+
   // Build execution options
   const execOptions: ExecutionOptions = {
     resumeSessionId: nativeResumeId,
-    model: options.model,
+    model: modelInput,
     rawArgs: options.rawArgs
   };
 
   // Build command
   const { command, args, env } = adapter.buildCommand(prompt, execOptions);
 
-  // Resolve the model being used (either user-specified or adapter default)
-  const resolvedModel = options.model ?? getAdapterDefaultModel(adapter.name);
+  // Resolve tier aliases (best/fast) for display
+  const resolvedModel = resolveModelTier(modelInput, adapter.name);
 
   // Print header
   printHeader(adapter.name, resolvedModel, options.resume);
@@ -140,32 +142,18 @@ export async function executeWithAdapter(
 
     process.exit(result.exitCode);
   } catch (error) {
-    console.error('\nExecution failed:', error);
+    console.error('\n⚠ ENGINE FAILURE:', error);
     process.exit(1);
-  }
-}
-
-/**
- * Get the default model for a given backend adapter.
- */
-function getAdapterDefaultModel(backend: BackendName): string {
-  switch (backend) {
-    case 'claude':
-      return CLAUDE_DEFAULT_MODEL;
-    case 'codex':
-      return CODEX_DEFAULT_MODEL;
-    case 'gemini':
-      return GEMINI_DEFAULT_MODEL;
   }
 }
 
 function printHeader(backend: string, model: string, resumeId?: string): void {
   console.log();
   console.log('━'.repeat(60));
-  console.log(`⚡ HYPERYOLO - ${backend.toUpperCase()}`);
-  console.log(`hyperyolo: Using ${backend}/${model}`);
+  console.log(`⚠ HYPERYOLO — ENGINE: ${backend.toUpperCase()}`);
+  console.log(`   Model: ${model}`);
   if (resumeId) {
-    console.log(`⚡ RESUMING: ${resumeId}`);
+    console.log(`↩ RESUMING BURN: ${resumeId}`);
   }
   console.log('━'.repeat(60));
   console.log();
@@ -180,14 +168,14 @@ function printFooter(
   console.log();
   console.log('━'.repeat(60));
 
-  const parts: string[] = [`Duration: ${(durationMs / 1000).toFixed(1)}s`];
+  const parts: string[] = [`Burn: ${(durationMs / 1000).toFixed(1)}s`];
   if (stats?.tokens) {
     parts.push(`Tokens: ${stats.tokens.toLocaleString()}`);
   }
   if (stats?.costUsd) {
     parts.push(`Cost: $${stats.costUsd.toFixed(2)}`);
   }
-  console.log(parts.join(' | '));
+  console.log(`⚠ BURN COMPLETE — ${parts.join(' | ')}`);
 
   if (sessionId) {
     console.log();

@@ -4,6 +4,18 @@ import { promises as fs } from 'node:fs';
 import type { BackendName } from './executor.js';
 
 /**
+ * Environment variable names for model overrides.
+ * Global: HYPERYOLO_MODEL (applies to all backends)
+ * Per-backend: HYPERYOLO_CODEX_MODEL, HYPERYOLO_CLAUDE_MODEL, HYPERYOLO_GEMINI_MODEL
+ */
+export const ENV_GLOBAL_MODEL = 'HYPERYOLO_MODEL';
+export const ENV_BACKEND_MODEL: Record<BackendName, string> = {
+  codex: 'HYPERYOLO_CODEX_MODEL',
+  claude: 'HYPERYOLO_CLAUDE_MODEL',
+  gemini: 'HYPERYOLO_GEMINI_MODEL'
+};
+
+/**
  * User configuration schema.
  * Stored at ~/.config/hyperyolo/config.json (or XDG_CONFIG_HOME).
  */
@@ -78,23 +90,67 @@ export async function loadConfigFile(): Promise<HyperyoloConfig | null> {
 }
 
 /**
- * Load and resolve model defaults from config file, falling back to hardcoded defaults.
+ * Get the environment variable override for a specific backend.
+ * Checks backend-specific var first, then falls back to global var.
+ *
+ * Precedence: HYPERYOLO_CODEX_MODEL > HYPERYOLO_MODEL
+ *
+ * @param backend - The backend to get the env override for
+ * @returns The env var value, or undefined if not set
+ */
+export function getEnvModelOverride(backend: BackendName): string | undefined {
+  // Backend-specific var takes precedence
+  const backendVar = process.env[ENV_BACKEND_MODEL[backend]];
+  if (backendVar) {
+    return backendVar;
+  }
+
+  // Fall back to global var
+  const globalVar = process.env[ENV_GLOBAL_MODEL];
+  if (globalVar) {
+    return globalVar;
+  }
+
+  return undefined;
+}
+
+/**
+ * Load and resolve model defaults from environment, config file, and hardcoded defaults.
  * This is the main entry point for getting model defaults.
+ *
+ * Precedence order (highest to lowest):
+ * 1. Environment variable (HYPERYOLO_CODEX_MODEL or HYPERYOLO_MODEL)
+ * 2. Config file default
+ * 3. Hardcoded default
+ *
+ * Note: --model flag is handled at a higher level and always wins.
  *
  * @returns Resolved defaults for all backends
  */
 export async function loadConfig(): Promise<ResolvedDefaults> {
   const config = await loadConfigFile();
 
-  if (!config?.defaults) {
-    return { ...HARDCODED_DEFAULTS };
-  }
+  // For each backend: env > config > hardcoded
+  const resolveBackend = (backend: BackendName): string => {
+    // Check environment variable first
+    const envOverride = getEnvModelOverride(backend);
+    if (envOverride) {
+      return envOverride;
+    }
 
-  // Merge config defaults with hardcoded defaults
+    // Then config file
+    if (config?.defaults?.[backend]) {
+      return config.defaults[backend]!;
+    }
+
+    // Finally hardcoded default
+    return HARDCODED_DEFAULTS[backend];
+  };
+
   return {
-    codex: config.defaults.codex ?? HARDCODED_DEFAULTS.codex,
-    claude: config.defaults.claude ?? HARDCODED_DEFAULTS.claude,
-    gemini: config.defaults.gemini ?? HARDCODED_DEFAULTS.gemini
+    codex: resolveBackend('codex'),
+    claude: resolveBackend('claude'),
+    gemini: resolveBackend('gemini')
   };
 }
 

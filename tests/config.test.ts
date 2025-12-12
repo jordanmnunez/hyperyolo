@@ -6,7 +6,10 @@ import {
   loadConfig,
   getDefaultModel,
   getConfigPath,
+  getEnvModelOverride,
   HARDCODED_DEFAULTS,
+  ENV_GLOBAL_MODEL,
+  ENV_BACKEND_MODEL,
   ConfigParseError,
   ConfigReadError
 } from '../src/core/config.js';
@@ -221,5 +224,208 @@ describe('HARDCODED_DEFAULTS', () => {
     expect(HARDCODED_DEFAULTS.codex).toBe('gpt-5.2-pro');
     expect(HARDCODED_DEFAULTS.claude).toBe('opus');
     expect(HARDCODED_DEFAULTS.gemini).toBe('pro');
+  });
+});
+
+describe('ENV constants', () => {
+  test('ENV_GLOBAL_MODEL is HYPERYOLO_MODEL', () => {
+    expect(ENV_GLOBAL_MODEL).toBe('HYPERYOLO_MODEL');
+  });
+
+  test('ENV_BACKEND_MODEL has correct per-backend var names', () => {
+    expect(ENV_BACKEND_MODEL.codex).toBe('HYPERYOLO_CODEX_MODEL');
+    expect(ENV_BACKEND_MODEL.claude).toBe('HYPERYOLO_CLAUDE_MODEL');
+    expect(ENV_BACKEND_MODEL.gemini).toBe('HYPERYOLO_GEMINI_MODEL');
+  });
+});
+
+function withEnvVars(
+  vars: Record<string, string | undefined>,
+  fn: () => void | Promise<void>
+): Promise<void> | void {
+  const originalValues: Record<string, string | undefined> = {};
+
+  // Save original values and set new ones
+  for (const [key, value] of Object.entries(vars)) {
+    originalValues[key] = process.env[key];
+    if (value === undefined) {
+      delete process.env[key];
+    } else {
+      process.env[key] = value;
+    }
+  }
+
+  const restore = () => {
+    for (const [key, value] of Object.entries(originalValues)) {
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
+  };
+
+  try {
+    const result = fn();
+    if (result instanceof Promise) {
+      return result.finally(restore);
+    }
+    restore();
+    return result;
+  } catch (error) {
+    restore();
+    throw error;
+  }
+}
+
+describe('getEnvModelOverride', () => {
+  test('returns undefined when no env vars set', () => {
+    withEnvVars(
+      {
+        HYPERYOLO_MODEL: undefined,
+        HYPERYOLO_CODEX_MODEL: undefined,
+        HYPERYOLO_CLAUDE_MODEL: undefined,
+        HYPERYOLO_GEMINI_MODEL: undefined
+      },
+      () => {
+        expect(getEnvModelOverride('codex')).toBeUndefined();
+        expect(getEnvModelOverride('claude')).toBeUndefined();
+        expect(getEnvModelOverride('gemini')).toBeUndefined();
+      }
+    );
+  });
+
+  test('returns global var value when set', () => {
+    withEnvVars(
+      {
+        HYPERYOLO_MODEL: 'fast',
+        HYPERYOLO_CODEX_MODEL: undefined,
+        HYPERYOLO_CLAUDE_MODEL: undefined,
+        HYPERYOLO_GEMINI_MODEL: undefined
+      },
+      () => {
+        expect(getEnvModelOverride('codex')).toBe('fast');
+        expect(getEnvModelOverride('claude')).toBe('fast');
+        expect(getEnvModelOverride('gemini')).toBe('fast');
+      }
+    );
+  });
+
+  test('backend-specific var takes precedence over global', () => {
+    withEnvVars(
+      {
+        HYPERYOLO_MODEL: 'fast',
+        HYPERYOLO_CODEX_MODEL: 'gpt-5.2-codex-max',
+        HYPERYOLO_CLAUDE_MODEL: undefined,
+        HYPERYOLO_GEMINI_MODEL: undefined
+      },
+      () => {
+        expect(getEnvModelOverride('codex')).toBe('gpt-5.2-codex-max');
+        expect(getEnvModelOverride('claude')).toBe('fast');
+        expect(getEnvModelOverride('gemini')).toBe('fast');
+      }
+    );
+  });
+
+  test('each backend can have independent override', () => {
+    withEnvVars(
+      {
+        HYPERYOLO_MODEL: undefined,
+        HYPERYOLO_CODEX_MODEL: 'gpt-5.2',
+        HYPERYOLO_CLAUDE_MODEL: 'sonnet',
+        HYPERYOLO_GEMINI_MODEL: 'flash'
+      },
+      () => {
+        expect(getEnvModelOverride('codex')).toBe('gpt-5.2');
+        expect(getEnvModelOverride('claude')).toBe('sonnet');
+        expect(getEnvModelOverride('gemini')).toBe('flash');
+      }
+    );
+  });
+});
+
+describe('loadConfig with env vars', () => {
+  test('env var overrides config file', async () => {
+    const content = JSON.stringify({
+      defaults: {
+        codex: 'gpt-5.2',
+        claude: 'sonnet',
+        gemini: 'flash'
+      }
+    });
+
+    await withTempConfig(content, async () => {
+      await withEnvVars({ HYPERYOLO_CLAUDE_MODEL: 'haiku' }, async () => {
+        const defaults = await loadConfig();
+        expect(defaults.claude).toBe('haiku'); // env wins
+        expect(defaults.codex).toBe('gpt-5.2'); // config
+        expect(defaults.gemini).toBe('flash'); // config
+      });
+    });
+  });
+
+  test('env var overrides hardcoded default', async () => {
+    await withTempConfig(null, async () => {
+      await withEnvVars({ HYPERYOLO_MODEL: 'fast' }, async () => {
+        const defaults = await loadConfig();
+        expect(defaults.codex).toBe('fast');
+        expect(defaults.claude).toBe('fast');
+        expect(defaults.gemini).toBe('fast');
+      });
+    });
+  });
+
+  test('backend-specific env var overrides global env var', async () => {
+    await withTempConfig(null, async () => {
+      await withEnvVars(
+        {
+          HYPERYOLO_MODEL: 'fast',
+          HYPERYOLO_GEMINI_MODEL: 'pro'
+        },
+        async () => {
+          const defaults = await loadConfig();
+          expect(defaults.codex).toBe('fast'); // global env
+          expect(defaults.claude).toBe('fast'); // global env
+          expect(defaults.gemini).toBe('pro'); // backend-specific wins
+        }
+      );
+    });
+  });
+
+  test('full precedence chain: env > config > hardcoded', async () => {
+    const content = JSON.stringify({
+      defaults: {
+        codex: 'gpt-5.2', // config for codex
+        // claude not in config - will use env or hardcoded
+        gemini: 'flash' // config for gemini
+      }
+    });
+
+    await withTempConfig(content, async () => {
+      await withEnvVars(
+        {
+          HYPERYOLO_MODEL: undefined,
+          HYPERYOLO_CODEX_MODEL: undefined,
+          HYPERYOLO_CLAUDE_MODEL: 'sonnet', // env for claude only
+          HYPERYOLO_GEMINI_MODEL: undefined
+        },
+        async () => {
+          const defaults = await loadConfig();
+          expect(defaults.codex).toBe('gpt-5.2'); // config (no env)
+          expect(defaults.claude).toBe('sonnet'); // env (no config)
+          expect(defaults.gemini).toBe('flash'); // config (no env)
+        }
+      );
+    });
+  });
+});
+
+describe('getDefaultModel with env vars', () => {
+  test('returns env var value when set', async () => {
+    await withTempConfig(null, async () => {
+      await withEnvVars({ HYPERYOLO_CLAUDE_MODEL: 'haiku' }, async () => {
+        expect(await getDefaultModel('claude')).toBe('haiku');
+      });
+    });
   });
 });
