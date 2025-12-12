@@ -10,15 +10,22 @@ export type ModelTier = 'best' | 'fast';
 /**
  * Tier-to-model mappings per backend.
  * These resolve tier aliases to concrete model names that the underlying CLIs understand.
+ *
+ * Note: Codex models use gpt-5.1-codex variants because GPT-5.2 models
+ * are only available for API accounts, not ChatGPT accounts. Most users
+ * authenticate Codex CLI via ChatGPT, so we default to the best models
+ * available to them:
+ * - gpt-5.1-codex-max: Best for complex, long-horizon agentic coding
+ * - gpt-5.1-codex-mini: Faster, more cost-effective for simpler tasks
  */
 export const TIER_MAPPINGS: Record<ModelTier, Record<BackendName, string>> = {
   best: {
-    codex: 'gpt-5.2-pro',
+    codex: 'gpt-5.1-codex-max',
     claude: 'opus',
     gemini: 'pro'
   },
   fast: {
-    codex: 'gpt-5.2-chat-latest',
+    codex: 'gpt-5.1-codex-mini',
     claude: 'haiku',
     gemini: 'flash'
   }

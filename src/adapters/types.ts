@@ -1,4 +1,5 @@
 import type { BackendName } from '../core/executor.js';
+import type { ThinkingLevel } from '../core/thinking.js';
 
 export type OutputFormat = 'stream-json' | 'json' | 'text';
 
@@ -7,6 +8,12 @@ export interface ExecutionOptions {
   model?: string;
   systemPrompt?: string;
   outputFormat?: OutputFormat;
+  /**
+   * Thinking/reasoning effort level.
+   * - Codex: Passed as --reasoning-effort flag
+   * - Claude/Gemini: Prepends thinking instructions to prompt
+   */
+  thinking?: ThinkingLevel;
   /**
    * Extra backend-specific args to append after the generated args.
    * Callers should sanitize these; adapters must not mutate the array.

@@ -34,9 +34,14 @@ export type ResolvedDefaults = Record<BackendName, string>;
 
 /**
  * The hardcoded best-tier defaults used when no config file exists.
+ *
+ * Note: Codex uses gpt-5.1-codex-max because GPT-5.2 models are only
+ * available for API accounts, not ChatGPT accounts. Most Codex CLI
+ * users authenticate via ChatGPT, so we default to the best model
+ * available to them.
  */
 export const HARDCODED_DEFAULTS: ResolvedDefaults = {
-  codex: 'gpt-5.2-pro',
+  codex: 'gpt-5.1-codex-max',
   claude: 'opus',
   gemini: 'pro'
 };

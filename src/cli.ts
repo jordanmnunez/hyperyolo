@@ -41,6 +41,7 @@ program
   .description('Strap in the Codex engine (OpenAI)')
   .option('-r, --resume <id>', 'Resume from session ID')
   .option('-m, --model <model>', 'Model to use')
+  .option('-t, --thinking <level>', 'Thinking level: low|medium|high|max')
   .option('--raw-args <args...>', 'Additional arguments to pass to the CLI')
   .action(async (prompt: string, options) => {
     const { runCodex } = await import('./commands/codex.js');
@@ -53,6 +54,7 @@ program
   .description('Strap in the Claude engine (Anthropic)')
   .option('-r, --resume <id>', 'Resume from session ID')
   .option('-m, --model <model>', 'Model to use')
+  .option('-t, --thinking <level>', 'Thinking level: low|medium|high|max')
   .option('--raw-args <args...>', 'Additional arguments to pass to the CLI')
   .action(async (prompt: string, options) => {
     const { runClaude } = await import('./commands/claude.js');
@@ -65,6 +67,7 @@ program
   .description('Strap in the Gemini engine (Google)')
   .option('-r, --resume <id>', 'Resume from session ID')
   .option('-m, --model <model>', 'Model to use')
+  .option('-t, --thinking <level>', 'Thinking level: low|medium|high|max')
   .option('--raw-args <args...>', 'Additional arguments to pass to the CLI')
   .action(async (prompt: string, options) => {
     const { runGemini } = await import('./commands/gemini.js');

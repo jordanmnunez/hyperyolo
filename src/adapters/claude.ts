@@ -10,6 +10,7 @@ import type {
 import { annotateAvailabilityWithVersion, extractSemver } from './versioning.js';
 import { CLAUDE_SESSION_ID_REGEX } from '../core/session-id.js';
 import { resolveModelTier } from '../core/model-tiers.js';
+import { buildThinkingPrompt } from '../core/thinking.js';
 
 const execAsync = promisify(exec);
 
@@ -88,8 +89,13 @@ export const claudeAdapter: BackendAdapter = {
       args.push('--resume', options.resumeSessionId);
     }
 
+    // Apply thinking prompt if enabled (Claude doesn't have native --reasoning-effort)
+    const finalPrompt = options.thinking
+      ? buildThinkingPrompt(options.thinking, prompt)
+      : prompt;
+
     // The prompt flag and value
-    args.push('-p', prompt);
+    args.push('-p', finalPrompt);
 
     // Append any raw args at the end
     if (options.rawArgs?.length) {

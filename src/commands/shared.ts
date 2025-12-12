@@ -9,10 +9,12 @@ import { getDefaultModel } from '../core/config.js';
 import { resolveModelTier } from '../core/model-tiers.js';
 import { createStreamTee } from '../core/stream-tee.js';
 import { SessionStore } from '../core/session-store.js';
+import { normalizeThinkingOption, type ThinkingLevel } from '../core/thinking.js';
 
 export interface CommandOptions {
   resume?: string;
   model?: string;
+  thinking?: string;
   rawArgs?: string[];
 }
 
@@ -72,10 +74,14 @@ export async function executeWithAdapter(
   // Resolve model: --model wins, otherwise env/config/hardcoded defaults apply
   const modelInput = options.model ?? (await getDefaultModel(adapter.name));
 
+  // Normalize thinking option (true -> 'medium', string -> validated level)
+  const thinking = normalizeThinkingOption(options.thinking);
+
   // Build execution options
   const execOptions: ExecutionOptions = {
     resumeSessionId: nativeResumeId,
     model: modelInput,
+    thinking,
     rawArgs: options.rawArgs
   };
 
@@ -86,7 +92,7 @@ export async function executeWithAdapter(
   const resolvedModel = resolveModelTier(modelInput, adapter.name);
 
   // Print header
-  printHeader(adapter.name, resolvedModel, options.resume);
+  printHeader(adapter.name, resolvedModel, options.resume, thinking);
 
   // Set up stream tee for parsing
   let nativeSessionId: string | null = null;
@@ -147,11 +153,19 @@ export async function executeWithAdapter(
   }
 }
 
-function printHeader(backend: string, model: string, resumeId?: string): void {
+function printHeader(
+  backend: string,
+  model: string,
+  resumeId?: string,
+  thinking?: ThinkingLevel
+): void {
   console.log();
   console.log('━'.repeat(60));
   console.log(`⚠ HYPERYOLO — ENGINE: ${backend.toUpperCase()}`);
   console.log(`   Model: ${model}`);
+  if (thinking) {
+    console.log(`   Thinking: ${thinking}`);
+  }
   if (resumeId) {
     console.log(`↩ RESUMING BURN: ${resumeId}`);
   }

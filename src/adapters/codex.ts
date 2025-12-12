@@ -13,6 +13,7 @@ import {
   CODEX_JSON_THREAD_ID_REGEX
 } from '../core/session-id.js';
 import { resolveModelTier } from '../core/model-tiers.js';
+import { CODEX_REASONING_EFFORT_MAP } from '../core/thinking.js';
 
 const execAsync = promisify(exec);
 
@@ -23,8 +24,14 @@ const SESSION_ID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9
 
 /**
  * Default model for Codex: best-tier for autonomous execution.
+ *
+ * Uses gpt-5.1-codex-max because GPT-5.2 models are only available
+ * for API accounts, not ChatGPT accounts. Most users authenticate
+ * via ChatGPT, so we use the best model available to them.
+ *
+ * API users can override with: --model gpt-5.2-pro
  */
-export const CODEX_DEFAULT_MODEL = 'gpt-5.2-pro';
+export const CODEX_DEFAULT_MODEL = 'gpt-5.1-codex-max';
 
 /**
  * Pattern to extract tokens from text output: "tokens used 357"
@@ -84,6 +91,12 @@ export const codexAdapter: BackendAdapter = {
     // Resolve tier aliases (best/fast) to concrete model names
     const model = resolveModelTier(options.model ?? CODEX_DEFAULT_MODEL, 'codex');
     args.push('--model', model);
+
+    // Thinking/reasoning effort (via config override)
+    if (options.thinking) {
+      const effort = CODEX_REASONING_EFFORT_MAP[options.thinking];
+      args.push('-c', `model_reasoning_effort="${effort}"`);
+    }
 
     // The prompt must come before resume
     args.push(prompt);
