@@ -9,6 +9,7 @@ import type {
 } from './types.js';
 import { annotateAvailabilityWithVersion, extractSemver } from './versioning.js';
 import { GEMINI_INIT_SESSION_ID_REGEX } from '../core/session-id.js';
+import { resolveModelTier } from '../core/model-tiers.js';
 
 const execAsync = promisify(exec);
 
@@ -79,7 +80,8 @@ export const geminiAdapter: BackendAdapter = {
     args.push('-o', 'stream-json');
 
     // Model option: default to best-tier when not specified
-    const model = options.model ?? GEMINI_DEFAULT_MODEL;
+    // Resolve tier aliases (best/fast) to concrete model names
+    const model = resolveModelTier(options.model ?? GEMINI_DEFAULT_MODEL, 'gemini');
     args.push('--model', model);
 
     // Resume: -r <session-id>

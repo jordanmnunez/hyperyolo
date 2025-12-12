@@ -12,6 +12,7 @@ import {
   CODEX_TEXT_SESSION_ID_REGEX,
   CODEX_JSON_THREAD_ID_REGEX
 } from '../core/session-id.js';
+import { resolveModelTier } from '../core/model-tiers.js';
 
 const execAsync = promisify(exec);
 
@@ -80,7 +81,8 @@ export const codexAdapter: BackendAdapter = {
     args.push('--skip-git-repo-check');
 
     // Model option: default to best-tier when not specified
-    const model = options.model ?? CODEX_DEFAULT_MODEL;
+    // Resolve tier aliases (best/fast) to concrete model names
+    const model = resolveModelTier(options.model ?? CODEX_DEFAULT_MODEL, 'codex');
     args.push('--model', model);
 
     // The prompt must come before resume

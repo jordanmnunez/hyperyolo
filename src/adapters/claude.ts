@@ -9,6 +9,7 @@ import type {
 } from './types.js';
 import { annotateAvailabilityWithVersion, extractSemver } from './versioning.js';
 import { CLAUDE_SESSION_ID_REGEX } from '../core/session-id.js';
+import { resolveModelTier } from '../core/model-tiers.js';
 
 const execAsync = promisify(exec);
 
@@ -78,7 +79,8 @@ export const claudeAdapter: BackendAdapter = {
     args.push('--verbose');
 
     // Model option: default to best-tier when not specified
-    const model = options.model ?? CLAUDE_DEFAULT_MODEL;
+    // Resolve tier aliases (best/fast) to concrete model names
+    const model = resolveModelTier(options.model ?? CLAUDE_DEFAULT_MODEL, 'claude');
     args.push('--model', model);
 
     // Resume: --resume <nativeId> BEFORE -p flag
