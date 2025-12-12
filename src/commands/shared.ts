@@ -3,7 +3,10 @@
  */
 
 import { randomBytes } from 'node:crypto';
-import type { BackendAdapter, ExecutionOptions } from '../adapters/types.js';
+import type { BackendAdapter, BackendName, ExecutionOptions } from '../adapters/types.js';
+import { CLAUDE_DEFAULT_MODEL } from '../adapters/claude.js';
+import { CODEX_DEFAULT_MODEL } from '../adapters/codex.js';
+import { GEMINI_DEFAULT_MODEL } from '../adapters/gemini.js';
 import { executeWithTimeout } from '../core/executor.js';
 import { createStreamTee } from '../core/stream-tee.js';
 import { SessionStore } from '../core/session-store.js';
@@ -77,8 +80,11 @@ export async function executeWithAdapter(
   // Build command
   const { command, args, env } = adapter.buildCommand(prompt, execOptions);
 
+  // Resolve the model being used (either user-specified or adapter default)
+  const resolvedModel = options.model ?? getAdapterDefaultModel(adapter.name);
+
   // Print header
-  printHeader(adapter.name, options.resume);
+  printHeader(adapter.name, resolvedModel, options.resume);
 
   // Set up stream tee for parsing
   let nativeSessionId: string | null = null;
@@ -139,10 +145,25 @@ export async function executeWithAdapter(
   }
 }
 
-function printHeader(backend: string, resumeId?: string): void {
+/**
+ * Get the default model for a given backend adapter.
+ */
+function getAdapterDefaultModel(backend: BackendName): string {
+  switch (backend) {
+    case 'claude':
+      return CLAUDE_DEFAULT_MODEL;
+    case 'codex':
+      return CODEX_DEFAULT_MODEL;
+    case 'gemini':
+      return GEMINI_DEFAULT_MODEL;
+  }
+}
+
+function printHeader(backend: string, model: string, resumeId?: string): void {
   console.log();
   console.log('━'.repeat(60));
   console.log(`⚡ HYPERYOLO - ${backend.toUpperCase()}`);
+  console.log(`hyperyolo: Using ${backend}/${model}`);
   if (resumeId) {
     console.log(`⚡ RESUMING: ${resumeId}`);
   }
